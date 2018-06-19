@@ -1,0 +1,16 @@
+{
+    "name": "Sneetch",
+    "version": "0.1.0",
+    "author": "Oliver Steele",
+    "description": "Preview GitHub repo targets",
+    "homepage_url": "https://github.com/osteele/sneetches",
+    "manifest_version": 2,
+    "permissions": ["<all_urls>", "storage"],
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "options_page": "options.html"
+}
