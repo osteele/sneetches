@@ -79,7 +79,6 @@ function annotate(elt, str, extraCssClasses) {
 
 function updateAnnotationsFromSettings() {
     settingsP().then(({ access_token: accessToken, enabled }) => {
-        console.info('got', accessToken, enabled);
         if (enabled === undefined) {
             enabled = true;
         }
