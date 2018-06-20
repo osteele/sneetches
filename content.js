@@ -1,14 +1,17 @@
 'use strict';
 
-const ACCESS_TOKEN_KEY = 'sneetches.access_token';
-const accessTokenP = new Promise(
-    (resolve, reject) =>
-        chrome.storage
-            ? chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
-                  resolve(items[ACCESS_TOKEN_KEY]);
-              })
-            : resolve(localStorage[ACCESS_TOKEN_KEY])
+const ACCESS_TOKEN_KEY = 'access_token';
+const ENABLED_KEY = 'enabled';
+
+const accessTokenP = new Promise((resolve, reject) =>
+    chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
+        resolve(items[ACCESS_TOKEN_KEY]);
+    })
 );
+const settingsP = () =>
+    new Promise((resolve, reject) =>
+        chrome.storage.sync.get([ACCESS_TOKEN_KEY, ENABLED_KEY], resolve)
+    );
 
 const ghLinks = Array.prototype.slice
     .call(document.querySelectorAll('a[href^="https://github.com/"]'))
@@ -26,6 +29,13 @@ const repoLinks = ghLinks.filter(elt => {
         elt.childElementCount == 0
     );
 });
+
+function removeLinkAnnotations() {
+    Array.prototype.forEach.call(
+        document.querySelectorAll('.data-sneetch-extension'),
+        node => node.parentNode.removeChild(node)
+    );
+}
 
 function updateLinks(accessToken) {
     const options = {};
@@ -67,4 +77,22 @@ function annotate(elt, str, extraCssClasses) {
     elt.appendChild(info);
 }
 
-accessTokenP.then(updateLinks);
+function updateAnnotationsFromSettings() {
+    settingsP().then(({ access_token: accessToken, enabled }) => {
+        console.info('got', accessToken, enabled);
+        if (enabled === undefined) {
+            enabled = true;
+        }
+        if (enabled) {
+            updateLinks(accessToken);
+        }
+    });
+}
+
+// accessTokenP.then(updateLinks);
+updateAnnotationsFromSettings();
+
+chrome.storage.onChanged.addListener(() => {
+    removeLinkAnnotations();
+    updateAnnotationsFromSettings();
+});
