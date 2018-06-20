@@ -52,6 +52,18 @@ function updateLinks(accessToken) {
                 if (res.ok) {
                     return res.json();
                 } else {
+                    if (res.status == 403) {
+                        const an = annotate(elt, ' (⏳)');
+                        const when = new Date(
+                            Number(res.headers.get('X-RateLimit-Reset')) * 1000
+                        );
+                        an.setAttribute(
+                            'title',
+                            'GitHub API rate limit exceeded. No API calls are available until ' +
+                                when +
+                                '.'
+                        );
+                    }
                     if (res.status == 404) {
                         annotate(elt, ' (missing⚰️)', 'missing');
                     }
@@ -75,6 +87,7 @@ function annotate(elt, str, extraCssClasses) {
     info.setAttribute('data-sneetch-extension', 'true');
     info.innerText = str;
     elt.appendChild(info);
+    return info;
 }
 
 function updateAnnotationsFromSettings() {

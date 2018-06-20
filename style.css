@@ -1,3 +1,7 @@
+.data-sneetch-extension {
+    text-decoration: none;
+}
+
 .data-sneetch-extension.missing {
     color: red;
 }
