@@ -1,19 +1,28 @@
 'use strict';
 
 const ACCESS_TOKEN_KEY = 'sneetches.access_token';
-const accessTokenP = new Promise((resolve, reject) =>
-    chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
-        resolve(items[ACCESS_TOKEN_KEY]);
-    })
+const accessTokenP = new Promise(
+    (resolve, reject) =>
+        chrome.storage
+            ? chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
+                  resolve(items[ACCESS_TOKEN_KEY]);
+              })
+            : resolve(localStorage[ACCESS_TOKEN_KEY])
 );
 
-const ghLinks = document.querySelectorAll('a[href^="https://github.com/"]');
-const repoLinks = [].filter.call(ghLinks, function(elt) {
+const ghLinks = Array.prototype.slice
+    .call(document.querySelectorAll('a[href^="https://github.com/"]'))
+    .concat(
+        Array.prototype.slice.call(
+            document.querySelectorAll('a[href^="http://github.com/"]')
+        )
+    );
+const repoLinks = ghLinks.filter(elt => {
     const href = elt.attributes['href'].value;
     return (
         href &&
-        href.match('^https://github.com/[^/]+/[^/]+/?$') &&
-        !href.match('^https://github.com/(site|topics)') &&
+        href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
+        !href.match('^https?://github.com/(site|topics)') &&
         elt.childElementCount == 0
     );
 });
@@ -27,7 +36,7 @@ function updateLinks(accessToken) {
     }
     repoLinks.forEach(function(elt) {
         const href = elt.attributes['href'].value;
-        const nwo = href.match('^https://github.com/(.+?)/?$')[1];
+        const nwo = href.match('^https?://github.com/(.+?)/?$')[1];
         fetch('https://api.github.com/repos/' + nwo, options)
             .then(res => {
                 if (res.ok) {
