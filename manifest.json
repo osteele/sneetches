@@ -6,6 +6,9 @@
     "homepage_url": "https://github.com/osteele/sneetches",
     "manifest_version": 2,
     "permissions": ["<all_urls>", "storage"],
+    "icons": {
+        "128": "icon128.png"
+    },
     "content_scripts": [
         {
             "matches": ["*://*/*"],
