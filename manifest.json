@@ -1,5 +1,5 @@
 {
-    "name": "Sneetch",
+    "name": "Sneetches",
     "version": "0.1.0",
     "author": "Oliver Steele",
     "description": "Preview GitHub repo targets",
@@ -9,7 +9,8 @@
     "content_scripts": [
         {
             "matches": ["*://*/*"],
-            "js": ["content.js"]
+            "js": ["content.js"],
+            "css": ["style.css"]
         }
     ],
     "options_page": "options.html"

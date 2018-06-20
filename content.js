@@ -1,9 +1,11 @@
-const ACCESS_TOKEN_KEY = 'sneetches.access_token';
-var accessToken = localStorage[ACCESS_TOKEN_KEY];
+'use strict';
 
-chrome.storage.sync.get([ACCESS_TOKEN_KEY], function(items) {
-    localStorage[ACCESS_TOKEN_KEY] = accessToken = items[ACCESS_TOKEN_KEY];
-});
+const ACCESS_TOKEN_KEY = 'sneetches.access_token';
+const accessTokenP = new Promise((resolve, reject) =>
+    chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
+        resolve(items[ACCESS_TOKEN_KEY]);
+    })
+);
 
 const ghLinks = document.querySelectorAll('a[href^="https://github.com/"]');
 const repoLinks = [].filter.call(ghLinks, function(elt) {
@@ -16,21 +18,44 @@ const repoLinks = [].filter.call(ghLinks, function(elt) {
     );
 });
 
-repoLinks.forEach(function(elt) {
-    const href = elt.attributes['href'].value;
-    const nwo = href.match('^https://github.com/(.+)')[1];
-    fetch('https://api.github.com/repos/' + nwo, {
-        headers: new Headers({
+function updateLinks(accessToken) {
+    const options = {};
+    if (accessToken) {
+        options['headers'] = new Headers({
             Authorization: 'Bearer ' + accessToken
-        })
-    })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(data) {
-            var info = document.createElement('small');
-            info.setAttribute('data-sneetch-extension', 'true');
-            info.innerText = ' (' + data.stargazers_count + ' stars)';
-            elt.appendChild(info);
         });
-});
+    }
+    repoLinks.forEach(function(elt) {
+        const href = elt.attributes['href'].value;
+        const nwo = href.match('^https://github.com/(.+?)/?$')[1];
+        fetch('https://api.github.com/repos/' + nwo, options)
+            .then(res => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    if (res.status == 404) {
+                        annotate(elt, ' (missing⚰️)', 'missing');
+                    }
+                }
+            })
+            .then(data => {
+                if (data) {
+                    annotate(elt, ' (' + data.stargazers_count + '⭐)');
+                }
+            });
+    });
+}
+
+function annotate(elt, str, extraCssClasses) {
+    var cssClass = 'data-sneetch-extension';
+    if (extraCssClasses) {
+        cssClass += ' ' + extraCssClasses;
+    }
+    const info = document.createElement('small');
+    info.setAttribute('class', cssClass);
+    info.setAttribute('data-sneetch-extension', 'true');
+    info.innerText = str;
+    elt.appendChild(info);
+}
+
+accessTokenP.then(updateLinks);
