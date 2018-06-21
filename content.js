@@ -3,11 +3,6 @@
 const ACCESS_TOKEN_KEY = 'access_token';
 const ENABLED_KEY = 'enabled';
 
-const accessTokenP = new Promise((resolve, reject) =>
-    chrome.storage.sync.get([ACCESS_TOKEN_KEY], items => {
-        resolve(items[ACCESS_TOKEN_KEY]);
-    })
-);
 const settingsP = () =>
     new Promise((resolve, reject) =>
         chrome.storage.sync.get([ACCESS_TOKEN_KEY, ENABLED_KEY], resolve)
@@ -20,6 +15,7 @@ const ghLinks = Array.prototype.slice
             document.querySelectorAll('a[href^="http://github.com/"]')
         )
     );
+
 const repoLinks = ghLinks.filter(elt => {
     const href = elt.attributes['href'].value;
     return (
@@ -49,6 +45,7 @@ function updateLinks(accessToken) {
         const nwo = href.match('^https?://github.com/(.+?)/?$')[1];
         fetch('https://api.github.com/repos/' + nwo, options)
             .then(res => {
+                // res = { status: 403, headers: { get: () => 0 } };
                 if (res.ok) {
                     return res.json();
                 } else {
@@ -57,12 +54,18 @@ function updateLinks(accessToken) {
                         const when = new Date(
                             Number(res.headers.get('X-RateLimit-Reset')) * 1000
                         );
-                        an.setAttribute(
-                            'title',
-                            'GitHub API rate limit exceeded. No API calls are available until ' +
-                                when +
-                                '.'
-                        );
+                        var title =
+                            'The GitHub API rate limit has been exceeded.' +
+                            'No API calls are available until ' +
+                            when +
+                            '.';
+                        if (!accessToken) {
+                            title +=
+                                '\n\nEnter a GitHub access token into the ' +
+                                'extension options to increase this rate.';
+                        }
+
+                        an.setAttribute('title', title);
                     }
                     if (res.status == 404) {
                         annotate(elt, ' (missing⚰️)', 'missing');
@@ -101,7 +104,6 @@ function updateAnnotationsFromSettings() {
     });
 }
 
-// accessTokenP.then(updateLinks);
 updateAnnotationsFromSettings();
 
 chrome.storage.onChanged.addListener(() => {
