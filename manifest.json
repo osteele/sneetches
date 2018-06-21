@@ -1,7 +1,7 @@
 {
     "name": "Sneetches for GitHub",
     "short_name": "Sneetches",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "Oliver Steele",
     "description": "Adds stars next to GitHub repo links",
     "homepage_url": "https://github.com/osteele/sneetches",
