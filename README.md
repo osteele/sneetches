@@ -1,7 +1,8 @@
 # Sneetches <a href="https://chrome.google.com/webstore/detail/sneetches/kcgocobceakfflhmbolpokembcmeljka"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" width="24" /></a>
 
+Sneetches is a Chrome extension that adds stars next to GitHub repo links.
 
-A Chrome extension that adds stars to GitHub repo links.
+An example from [Awesome JavaScript](https://github.com/sorrycc/awesome-javascript#mvc-frameworks-and-libraries):
 
 ![](./docs/comparison.png)
 
