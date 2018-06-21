@@ -49,38 +49,64 @@ function updateLinks(accessToken) {
                 if (res.ok) {
                     return res.json();
                 } else {
-                    if (res.status == 403) {
-                        const an = annotate(elt, ' (⏳)');
-                        const when = new Date(
-                            Number(res.headers.get('X-RateLimit-Reset')) * 1000
-                        );
-                        var title =
-                            'The GitHub API rate limit has been exceeded.' +
-                            'No API calls are available until ' +
-                            when +
-                            '.';
-                        if (!accessToken) {
-                            title +=
-                                '\n\nEnter a GitHub access token into the ' +
-                                'extension options to increase this rate.';
-                        }
-
-                        an.setAttribute('title', title);
-                    }
-                    if (res.status == 404) {
-                        annotate(elt, ' (missing⚰️)', 'missing');
-                    }
+                    addErrorAnnotation(elt, res);
                 }
             })
             .then(data => {
                 if (data) {
-                    annotate(elt, ' (' + data.stargazers_count + '⭐)');
+                    addAnnotation(elt, data);
                 }
             });
     });
 }
 
-function annotate(elt, str, extraCssClasses) {
+function addErrorAnnotation(elt, res) {
+    if (res.status == 403) {
+        const an = createAnnotation(elt, ' (⏳)');
+        const when = new Date(
+            Number(res.headers.get('X-RateLimit-Reset')) * 1000
+        );
+        var title =
+            'The GitHub API rate limit has been exceeded.' +
+            'No API calls are available until ' +
+            when +
+            '.';
+        if (!accessToken) {
+            title +=
+                '\n\nEnter a GitHub access token into the ' +
+                'extension options to increase this rate.';
+        }
+
+        an.setAttribute('title', title);
+    } else if (res.status == 404) {
+        createAnnotation(elt, ' (missing⚰️)', 'missing');
+    } else {
+        console.error('sneetches: request status =', res.status);
+    }
+}
+
+function addAnnotation(elt, data) {
+    const text = [];
+    if (false) {
+        const when = new Date(data.pushed_at);
+        var whenStr = when.toLocaleDateString();
+        if (when.getFullYear() === new Date().getFullYear()) {
+            whenStr = whenStr.replace(
+                RegExp('/' + when.getFullYear() + '$'),
+                ''
+            );
+        }
+        text.push(whenStr + '➡');
+    }
+    if (true) {
+        text.push(commify(data.stargazers_count) + '⭐)');
+    }
+    createAnnotation(elt, ' (' + text.join('; '));
+}
+
+const commify = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+function createAnnotation(elt, str, extraCssClasses) {
     var cssClass = 'data-sneetch-extension';
     if (extraCssClasses) {
         cssClass += ' ' + extraCssClasses;

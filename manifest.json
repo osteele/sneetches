@@ -1,5 +1,6 @@
 {
-    "name": "Sneetches",
+    "name": "Sneetches for GitHub",
+    "short_name": "Sneetches",
     "version": "0.1.1",
     "author": "Oliver Steele",
     "description": "Adds stars next to GitHub repo links",

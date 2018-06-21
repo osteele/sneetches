@@ -2,8 +2,6 @@
 
 Sneetches is a Chrome extension that adds stars next to GitHub repo links.
 
-An example from [Awesome JavaScript](https://github.com/sorrycc/awesome-javascript#mvc-frameworks-and-libraries):
-
 ![](./docs/comparison.png)
 
 ## Installation
