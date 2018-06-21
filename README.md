@@ -1,8 +1,19 @@
-# Sneetches
+# Sneetches <a href="https://chrome.google.com/webstore/detail/sneetches/kcgocobceakfflhmbolpokembcmeljka"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" width="24" /></a>
+
 
 A Chrome extension that adds stars to GitHub repo links.
 
 ![](./docs/comparison.png)
+
+## Installation
+
+Install the extensions from the [Chrome
+Store](https://chrome.google.com/webstore/detail/sneetches/kcgocobceakfflhmbolpokembcmeljka).
+
+Or, download this repo, and follow the instructions at [Getting Started Tutorial
+&gt; Create the
+Manifest](https://developer.chrome.com/extensions/getstarted#manifest), starting
+at “The directory holding the manifest file can be added as an extension”.
 
 ## Settings
 
