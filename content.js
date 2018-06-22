@@ -3,9 +3,44 @@
 const ACCESS_TOKEN_KEY = 'access_token';
 const ENABLED_KEY = 'enabled';
 
+const accessTokenP = () => settingsP().then(object => object[ACCESS_TOKEN_KEY]);
+
 const settingsP = () =>
     new Promise((resolve, reject) =>
-        chrome.storage.sync.get([ACCESS_TOKEN_KEY, ENABLED_KEY], resolve)
+        chrome.storage.sync.get(
+            [ACCESS_TOKEN_KEY, ENABLED_KEY],
+            object =>
+                chrome.runtime.lastError
+                    ? reject(chrome.runtime.lastError)
+                    : resolve(object)
+        )
+    );
+
+const locallyCached = (key, version, thunk) =>
+    new Promise((resolve, reject) =>
+        chrome.storage.local.get([key], object => {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+            }
+            const entry = object[key];
+            const now = Date.now();
+            if (entry && entry.exp > now && entry.ver === version) {
+                resolve(entry.pay);
+            } else {
+                Promise.resolve(thunk()).then(pay => {
+                    const object = {};
+                    const exp = Date.now() + 3600 * 1000;
+                    object[key] = { exp, pay, ver: version };
+                    chrome.storage.local.set(
+                        object,
+                        () =>
+                            chrome.runtime.lastError &&
+                            chrome.storage.local.clear()
+                    );
+                    resolve(pay);
+                });
+            }
+        })
     );
 
 const ghLinks = Array.prototype.slice
@@ -26,39 +61,54 @@ const repoLinks = ghLinks.filter(elt => {
     );
 });
 
-function removeLinkAnnotations() {
+const removeLinkAnnotations = () =>
     Array.prototype.forEach.call(
         document.querySelectorAll('.data-sneetch-extension'),
         node => node.parentNode.removeChild(node)
     );
-}
 
-function updateLinks(accessToken) {
-    const options = {};
-    if (accessToken) {
-        options['headers'] = new Headers({
-            Authorization: 'Bearer ' + accessToken
-        });
+const marshallableResponse = res => {
+    const status = res.status;
+    if (res.ok) return res.json().then(json => ({ ok: true, json, status }));
+    if (res.status == 404) {
+        return { ok: false, status };
     }
-    repoLinks.forEach(function(elt) {
-        const href = elt.attributes['href'].value;
-        const nwo = href.match('^https?://github.com/(.+?)(?:.git)?/?$')[1];
-        fetch('https://api.github.com/repos/' + nwo, options)
-            .then(res => {
-                // res = { status: 403, headers: { get: () => 0 } };
-                if (res.ok) {
-                    return res.json();
-                } else {
+    return Promise.error(res);
+};
+
+const getRepoData = nwo =>
+    locallyCached(nwo, 1, () =>
+        accessTokenP().then(accessToken => {
+            const headers = accessToken
+                ? new Headers({
+                      Authorization: 'Bearer ' + accessToken
+                  })
+                : null;
+            const options = headers ? { headers } : {};
+            return fetch('https://api.github.com/repos/' + nwo, options).then(
+                marshallableResponse
+            );
+        })
+    );
+
+const updateLinks = () =>
+    accessTokenP().then(accessToken =>
+        repoLinks.forEach(function(elt) {
+            const href = elt.attributes['href'].value;
+            const nwo = href.match('^https?://github.com/(.+?)(?:.git)?/?$')[1];
+            getRepoData(nwo)
+                .catch(err => {
                     addErrorAnnotation(elt, res, accessToken);
-                }
-            })
-            .then(data => {
-                if (data) {
-                    addAnnotation(elt, data);
-                }
-            });
-    });
-}
+                })
+                .then(res => {
+                    if (res.ok) {
+                        addAnnotation(elt, res.json);
+                    } else {
+                        addErrorAnnotation(elt, res);
+                    }
+                });
+        })
+    );
 
 function addErrorAnnotation(elt, res, accessToken) {
     if (res.status == 403) {
@@ -113,19 +163,18 @@ function createAnnotation(elt, str, extraCssClasses) {
 }
 
 function updateAnnotationsFromSettings() {
-    settingsP().then(({ access_token: accessToken, enabled }) => {
-        if (enabled === undefined) {
-            enabled = true;
-        }
-        if (enabled) {
-            updateLinks(accessToken);
+    settingsP().then(({ enabled }) => {
+        if (enabled || enabled === undefined) {
+            updateLinks();
         }
     });
 }
 
 updateAnnotationsFromSettings();
 
-chrome.storage.onChanged.addListener(() => {
-    removeLinkAnnotations();
-    updateAnnotationsFromSettings();
+chrome.storage.onChanged.addListener((_, namespace) => {
+    if (namespace == 'sync') {
+        removeLinkAnnotations();
+        updateAnnotationsFromSettings();
+    }
 });

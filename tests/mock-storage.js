@@ -1,39 +1,69 @@
-const localStoragePrefix = 'sneetches.';
+/* Emulate Google extensions storage, for testing web extensions.
+*/
 
-const listeners = [];
+'use strict';
 
-chrome.storage = {
-    sync: {
-        get: (keys, callback) => {
-            var object = {};
-            keys.forEach(key => {
-                const enc = localStorage[localStoragePrefix + key];
-                if (enc) {
-                    object[key] = JSON.parse(enc);
+const storageListeners = [];
+
+function StorageArea(areaName) {
+    const localStoragePrefix = `sneetches:${areaName}:`;
+    return {
+        clear: () => {
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith(localStoragePrefix)) {
+                    localStorage.removeItem(key);
                 }
             });
-            setTimeout(() => callback(object), 10);
+        },
+        get: (keys, callback) => {
+            const object = {};
+            keys.forEach(key => {
+                const localStorageKey = localStoragePrefix + key;
+                const json = localStorage[localStorageKey];
+                if (json) {
+                    object[key] = JSON.parse(json);
+                }
+            });
+            callback(object);
+            setTimeout(() => {
+                chrome.runtime.lastError = null;
+                callback(object);
+            }, 10);
         },
         set: (object, callback) => {
             var changes = {};
             Object.entries(object).forEach(([key, newValue]) => {
-                const oldValue = localStorage[localStoragePrefix + key];
-                localStorage[localStoragePrefix + key] = JSON.stringify(
-                    newValue
-                );
+                const localStorageKey = localStoragePrefix + key;
+                const oldValue = localStorage[localStorageKey];
+                localStorage[localStorageKey] = JSON.stringify(newValue);
                 changes[key] = { oldValue, newValue };
             });
-            setTimeout(callback, 10);
+            callback();
+            setTimeout(() => {
+                chrome.runtime.lastError = null;
+                callback();
+            }, 10);
             setTimeout(
                 () =>
-                    listeners.forEach(listener => {
-                        listener(changes, 'sync');
+                    storageListeners.forEach(listener => {
+                        // chrome.runtime.lastError = null;
+                        listener(changes, areaName);
                     }),
                 20
             );
         }
-    },
-    onChanged: {
-        addListener: listener => listeners.push(listener)
-    }
-};
+    };
+}
+
+if (!chrome.runtime) {
+    chrome.runtime = { lastError: null };
+}
+if (!chrome.storage) {
+    chrome.storage = {
+        local: StorageArea('local'),
+        sync: StorageArea('sync'),
+        onChanged: {
+            addListener: listener => storageListeners.push(listener)
+        }
+    };
+}
