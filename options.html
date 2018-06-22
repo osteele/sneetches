@@ -4,17 +4,26 @@
     <meta charset="utf-8">
   </head>
   <body>
-    <p>Create a <a href="https://github.com/settings/tokens/new">GitHub Personal
-    Access Token</a> and paste it here. <a
-    href="https://github.com/osteele/sneetches#access-token">(Why?)</a></p>
     <form>
+        <label>Stars</label>
+        <input id='show-stars' type="checkbox">
+        <label>Last Push</label>
+        <input id='show-update' type="checkbox">
+        <br/>
+
         <label>Enabled</label>
         <input id='enabled' type="checkbox">
         <br/>
+
         <label>GitHub access token</label>
         <input id='access-token' type="text">
+        <br/>
+
         <button type="submit">Save</button>
       </form>
-  </body>
+      <p>Create a <a href="https://github.com/settings/tokens/new">GitHub Personal
+        Access Token</a> and paste it above. <a
+        href="https://github.com/osteele/sneetches#access-token">(Why?)</a></p>
+      </body>
   <script src="options.js"></script>
 </html>

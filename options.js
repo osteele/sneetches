@@ -5,22 +5,30 @@ const ENABLED_KEY = 'enabled';
 
 function saveOptions(e) {
     e.preventDefault();
-    const accessToken = document.querySelector('#access-token').value;
-    const enabled = document.querySelector('#enabled').checked;
-    chrome.storage.sync.set({ access_token: accessToken, enabled });
+    chrome.storage.sync.set({
+        access_token: document.querySelector('#access-token').value,
+        enabled: document.querySelector('#enabled').checked,
+        show: {
+            update: document.querySelector('#show-update').checked,
+            stars: document.querySelector('#show-stars').checked
+        }
+    });
 }
 
 function restoreOptions() {
     chrome.storage.sync.get([ACCESS_TOKEN_KEY, ENABLED_KEY], object => {
         const accessToken = object[ACCESS_TOKEN_KEY];
-        if (accessToken) {
-            document.querySelector('#access-token').value = accessToken;
-        }
-        var enabled = object[ENABLED_KEY];
+        var { enabled, show } = object[ENABLED_KEY];
         if (enabled === undefined) {
             enabled = true;
         }
+        show = show || { stars: true };
+        if (accessToken) {
+            document.querySelector('#access-token').value = accessToken;
+        }
         document.querySelector('#enabled').checked = enabled;
+        document.querySelector('#show-stars').checked = show.stars;
+        document.querySelector('#show-update').checked = show.update;
     });
 }
 

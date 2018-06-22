@@ -2,17 +2,24 @@
 
 const ACCESS_TOKEN_KEY = 'access_token';
 const ENABLED_KEY = 'enabled';
+const SHOW_KEY = 'show';
 
-const accessTokenP = () => settingsP().then(object => object[ACCESS_TOKEN_KEY]);
+const accessTokenP = () => settingsP().then(object => object.accessToken);
 
 const settingsP = () =>
     new Promise((resolve, reject) =>
         chrome.storage.sync.get(
-            [ACCESS_TOKEN_KEY, ENABLED_KEY],
+            [ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY],
             object =>
                 chrome.runtime.lastError
                     ? reject(chrome.runtime.lastError)
-                    : resolve(object)
+                    : resolve({
+                          accessToken: object[ACCESS_TOKEN_KEY],
+                          enabled:
+                              object[ENABLED_KEY] === undefined ||
+                              object[ENABLED_KEY],
+                          show: object[SHOW_KEY]
+                      })
         )
     );
 
@@ -92,7 +99,7 @@ const getRepoData = nwo =>
     );
 
 const updateLinks = () =>
-    accessTokenP().then(accessToken =>
+    settingsP().then(({ accessToken, show }) =>
         repoLinks.forEach(function(elt) {
             const href = elt.attributes['href'].value;
             const nwo = href.match('^https?://github.com/(.+?)(?:.git)?/?$')[1];
@@ -102,7 +109,7 @@ const updateLinks = () =>
                 })
                 .then(res => {
                     if (res.ok) {
-                        addAnnotation(elt, res.json);
+                        addAnnotation(elt, res.json, show);
                     } else {
                         addErrorAnnotation(elt, res);
                     }
@@ -128,9 +135,9 @@ function addErrorAnnotation(elt, res, accessToken) {
     }
 }
 
-function addAnnotation(elt, data) {
+function addAnnotation(elt, data, show) {
     const text = [];
-    if (false) {
+    if (show.update) {
         const when = new Date(data.pushed_at);
         var whenStr = when.toLocaleDateString();
         if (when.getFullYear() === new Date().getFullYear()) {
@@ -139,9 +146,9 @@ function addAnnotation(elt, data) {
                 ''
             );
         }
-        text.push(whenStr + '➡');
+        text.push('➡' + whenStr);
     }
-    if (true) {
+    if (show.stars) {
         text.push(commify(data.stargazers_count) + '⭐)');
     }
     createAnnotation(elt, ' (' + text.join('; '));
