@@ -2,20 +2,25 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <style type="text/css">
+      body {
+        min-width: 300px;
+      }
+</style>
   </head>
   <body>
     <form>
-        <label>Stars</label>
-        <input id='show-stars' type="checkbox">
-        <label>Forks</label>
-        <input id='show-forks' type="checkbox">
-        <br/>
-        <label>Last Push</label>
-        <input id='show-update' type="checkbox">
+        <input id='enabled' type="checkbox">
+        <label>Enabled</label>
         <br/>
 
-        <label>Enabled</label>
-        <input id='enabled' type="checkbox">
+        <span>Show:</span>
+        <input id='show-stars' type="checkbox">
+        <label>Stars</label>
+        <input id='show-forks' type="checkbox">
+        <label>Forks</label>
+        <input id='show-update' type="checkbox">
+        <label>Last Push</label>
         <br/>
 
         <label>GitHub access token</label>
