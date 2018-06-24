@@ -9,8 +9,9 @@ const saveOptions = () =>
         access_token: document.querySelector('#access-token').value,
         enabled: document.querySelector('#enabled').checked,
         show: {
-            update: document.querySelector('#show-update').checked,
-            stars: document.querySelector('#show-stars').checked
+            forks: document.querySelector('#show-forks').checked,
+            stars: document.querySelector('#show-stars').checked,
+            update: document.querySelector('#show-update').checked
         }
     });
 
@@ -27,6 +28,7 @@ const restoreOptions = chrome.storage.sync.get(
             document.querySelector('#access-token').value = accessToken;
         }
         document.querySelector('#enabled').checked = enabled;
+        document.querySelector('#show-forks').checked = show.forks;
         document.querySelector('#show-stars').checked = show.stars;
         document.querySelector('#show-update').checked = show.update;
     }

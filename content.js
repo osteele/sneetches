@@ -139,6 +139,9 @@ function addErrorAnnotation(elt, res, accessToken) {
 
 function addAnnotation(elt, data, show) {
     const text = [];
+    if (show.forks) {
+        text.push(commify(data.forks_count) + '🍴');
+    }
     if (show.update) {
         const when = new Date(data.pushed_at);
         var whenStr = when.toLocaleDateString();
@@ -151,9 +154,9 @@ function addAnnotation(elt, data, show) {
         text.push('➡' + whenStr);
     }
     if (show.stars) {
-        text.push(commify(data.stargazers_count) + '⭐)');
+        text.push(commify(data.stargazers_count) + '⭐');
     }
-    createAnnotation(elt, ' (' + text.join('; '));
+    createAnnotation(elt, ' (' + text.join('; ') + ')');
 }
 
 const commify = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -184,7 +187,10 @@ updateAnnotationsFromSettings();
 chrome.storage.onChanged.addListener((object, namespace) => {
     if (namespace == 'sync') {
         const accessTokenChange = object[ACCESS_TOKEN_KEY];
-        if (accessTokenChange.oldValue !== accessTokenChange.newValue) {
+        if (
+            accessTokenChange &&
+            accessTokenChange.oldValue !== accessTokenChange.newValue
+        ) {
             chrome.storage.local.clear();
         }
         removeLinkAnnotations();
