@@ -18,7 +18,7 @@ const settingsP = () =>
                           enabled:
                               object[ENABLED_KEY] === undefined ||
                               object[ENABLED_KEY],
-                          show: object[SHOW_KEY]
+                          show: object[SHOW_KEY] || { stars: true }
                       })
         )
     );
