@@ -4,6 +4,8 @@ const ACCESS_TOKEN_KEY = 'access_token';
 const ENABLED_KEY = 'enabled';
 const SHOW_KEY = 'show';
 
+const CACHE_DUR_SECONDS = 2 * 3600;
+
 const accessTokenP = () => settingsP().then(object => object.accessToken);
 
 const settingsP = () =>
@@ -36,7 +38,7 @@ const locallyCached = (key, version, thunk) =>
             } else {
                 Promise.resolve(thunk()).then(pay => {
                     const object = {};
-                    const exp = Date.now() + 3600 * 1000;
+                    const exp = Date.now() + CACHE_DUR_SECONDS * 1000;
                     object[key] = { exp, pay, ver: version };
                     chrome.storage.local.set(
                         object,
@@ -179,8 +181,12 @@ function updateAnnotationsFromSettings() {
 
 updateAnnotationsFromSettings();
 
-chrome.storage.onChanged.addListener((_, namespace) => {
+chrome.storage.onChanged.addListener((object, namespace) => {
     if (namespace == 'sync') {
+        const accessTokenChange = object[ACCESS_TOKEN_KEY];
+        if (accessTokenChange.oldValue !== accessTokenChange.newValue) {
+            chrome.storage.local.clear();
+        }
         removeLinkAnnotations();
         updateAnnotationsFromSettings();
     }
