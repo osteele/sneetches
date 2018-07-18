@@ -1,4 +1,4 @@
-TARGET := sneetches.zip
+TARGET := dist/sneetches.zip
 
 .PHONY: build publish
 
@@ -8,5 +8,6 @@ publish: build
 build: $(TARGET)
 
 $(TARGET): *.css *.html *.js *.json images/*.png
-	@rm -f $@
+	@rm -rf dist
+	@mkdir -p dist
 	zip $@ $^
