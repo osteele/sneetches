@@ -7,7 +7,8 @@ publish: build
 
 build: $(TARGET)
 
-$(TARGET): *.css *.html *.js *.json images/*.png
+$(TARGET): src/*.css src/*.html src/*.js src/*.json src/images/*.png
 	@rm -rf dist
 	@mkdir -p dist
+	yarn build
 	zip $@ $^

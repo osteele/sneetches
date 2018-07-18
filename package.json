@@ -1,0 +1,23 @@
+{
+    "name": "sneetches",
+    "version": "0.3.1",
+    "description": "Adds stars next to GitHub repo links",
+    "author": "Oliver Steele <steele@osteele.com>",
+    "license": "MIT",
+    "main": "src/content.js",
+    "scripts": {
+        "dev": "webpack --mode development",
+        "build": "webpack --mode production",
+        "watch": "webpack --mode development --watch"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/osteele/sneetches.git"
+    },
+    "devDependencies": {
+        "clean-webpack-plugin": "^0.1.19",
+        "copy-webpack-plugin": "^4.5.2",
+        "webpack": "^4.16.1",
+        "webpack-cli": "^3.0.8"
+    }
+}
