@@ -15,8 +15,11 @@
         "url": "https://github.com/osteele/sneetches.git"
     },
     "devDependencies": {
+        "@types/chrome": "^0.0.69",
         "clean-webpack-plugin": "^0.1.19",
         "copy-webpack-plugin": "^4.5.2",
+        "ts-loader": "^4.4.2",
+        "typescript": "^2.9.2",
         "webpack": "^4.16.1",
         "webpack-cli": "^3.0.8"
     }

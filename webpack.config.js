@@ -4,16 +4,30 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        options: path.join(__dirname, './src/options.js'),
-        content: path.join(__dirname, './src/content.js')
+        options: path.join(__dirname, './src/options.ts'),
+        content: path.join(__dirname, './src/content.ts')
     },
     output: {
         path: path.join(__dirname, './build'),
         filename: '[name].js'
     },
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    resolve: {
+        extensions: ['.ts', '.tsx', '.js']
+    },
     plugins: [
         new CleanWebpackPlugin('build'),
-        new CopyWebpackPlugin([{ from: 'src', ignore: '*.js' }])
+        new CopyWebpackPlugin([
+            { from: 'src', ignore: ['*.js', '*.ts', '.DS_Store'] }
+        ])
     ]
 };
 

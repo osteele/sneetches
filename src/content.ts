@@ -1,14 +1,16 @@
-'use strict';
-
-const ACCESS_TOKEN_KEY = 'access_token';
-const ENABLED_KEY = 'enabled';
-const SHOW_KEY = 'show';
+import { ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY } from './constants';
 
 const CACHE_DUR_SECONDS = 2 * 3600;
 
+type ShowType = { forks: boolean; stars: boolean; update: boolean };
+
 const accessTokenP = () => settingsP().then(object => object.accessToken);
 
-const settingsP = () =>
+const settingsP: () => Promise<{
+    accessToken: string;
+    enabled: boolean;
+    show: ShowType;
+}> = () =>
     new Promise((resolve, reject) =>
         chrome.storage.sync.get(
             [ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY],
@@ -25,8 +27,13 @@ const settingsP = () =>
         )
     );
 
-const locallyCached = (key, version, thunk) =>
-    new Promise((resolve, reject) =>
+// function locallyCached<T>: (string,any,()=>T)=>Promise<T> = (key:string, version:any, thunk) =>
+function locallyCached<T>(
+    key: string,
+    version: any,
+    thunk: () => T
+): Promise<T> {
+    return new Promise((resolve, reject) =>
         chrome.storage.local.get([key], object => {
             if (chrome.runtime.lastError) {
                 return reject(chrome.runtime.lastError);
@@ -37,9 +44,10 @@ const locallyCached = (key, version, thunk) =>
                 resolve(entry.pay);
             } else {
                 Promise.resolve(thunk()).then(pay => {
-                    const object = {};
                     const exp = Date.now() + CACHE_DUR_SECONDS * 1000;
-                    object[key] = { exp, pay, ver: version };
+                    const object = {
+                        [key]: { exp, pay, ver: version }
+                    };
                     chrome.storage.local.set(
                         object,
                         () =>
@@ -51,8 +59,9 @@ const locallyCached = (key, version, thunk) =>
             }
         })
     );
+}
 
-const ghLinks = Array.prototype.slice
+const ghLinks: [HTMLAnchorElement] = Array.prototype.slice
     .call(document.querySelectorAll('a[href^="https://github.com/"]'))
     .concat(
         Array.prototype.slice.call(
@@ -60,8 +69,8 @@ const ghLinks = Array.prototype.slice
         )
     );
 
-const repoLinks = ghLinks.filter(elt => {
-    const href = elt.attributes['href'].value;
+const repoLinks = ghLinks.filter((elt: HTMLAnchorElement) => {
+    const href = elt.href;
     return (
         href &&
         href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
@@ -73,20 +82,25 @@ const repoLinks = ghLinks.filter(elt => {
 const removeLinkAnnotations = () =>
     Array.prototype.forEach.call(
         document.querySelectorAll('.data-sneetch-extension'),
-        node => node.parentNode.removeChild(node)
+        (node: HTMLElement) =>
+            node.parentNode && node.parentNode.removeChild(node)
     );
 
-const marshallableResponse = res => {
-    const status = res.status;
-    if (res.ok) return res.json().then(json => ({ ok: true, json, status }));
-    if (res.status == 404) {
-        return { ok: false, status };
-    }
-    return Promise.error(res);
-};
+function marshallableResponse(
+    res: Response
+): PromiseLike<{ ok: boolean; status?: number; json?: {} }> {
+    return new Promise((resolve, reject) => {
+        const { ok, status } = res;
+        if (ok) {
+            res.json().then(json => resolve({ ok: true, json }));
+        } else if (status === 404) {
+            resolve({ ok: false, status });
+        } else reject({ ok: false, status });
+    });
+}
 
-const getRepoData = nwo =>
-    locallyCached(nwo, 1, () =>
+function getRepoData(nwo: string): Promise<any> {
+    return locallyCached(nwo, 1, () =>
         accessTokenP().then(accessToken => {
             const headers = accessToken
                 ? new Headers({
@@ -99,27 +113,33 @@ const getRepoData = nwo =>
             );
         })
     );
+}
 
 const updateLinks = () =>
     settingsP().then(({ accessToken, show }) =>
         repoLinks.forEach(function(elt) {
-            const href = elt.attributes['href'].value;
-            const nwo = href.match('^https?://github.com/(.+?)(?:.git)?/?$')[1];
-            getRepoData(nwo)
-                .catch(err => {
-                    addErrorAnnotation(elt, res, accessToken);
-                })
-                .then(res => {
-                    if (res.ok) {
-                        addAnnotation(elt, res.json, show);
-                    } else {
-                        addErrorAnnotation(elt, res);
-                    }
-                });
+            const href = elt.href;
+            const m = href.match('^https?://github.com/(.+?)(?:.git)?/?$');
+            m &&
+                getRepoData(m[1])
+                    .then(res => {
+                        if (res.ok) {
+                            addAnnotation(elt, res.json, show);
+                        } else {
+                            addErrorAnnotation(elt, res, accessToken);
+                        }
+                    })
+                    .catch(err => {
+                        addErrorAnnotation(elt, err, accessToken);
+                    });
         })
     );
 
-function addErrorAnnotation(elt, res, accessToken) {
+function addErrorAnnotation(
+    elt: HTMLElement,
+    res: { status: number; headers: { get: (_: string) => string } },
+    accessToken: string
+) {
     if (res.status == 403) {
         const an = createAnnotation(elt, ' (⏳)');
         const when = new Date(
@@ -137,7 +157,11 @@ function addErrorAnnotation(elt, res, accessToken) {
     }
 }
 
-function addAnnotation(elt, data, show) {
+function addAnnotation(
+    elt: HTMLElement,
+    data: { forks_count: number; stargazers_count: number; pushed_at: string },
+    show: ShowType
+) {
     const text = [];
     if (show.forks) {
         text.push(commify(data.forks_count) + '🍴');
@@ -159,9 +183,15 @@ function addAnnotation(elt, data, show) {
     createAnnotation(elt, ' (' + text.join('; ') + ')');
 }
 
-const commify = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function commify(n: number): string {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
 
-function createAnnotation(elt, str, extraCssClasses) {
+function createAnnotation(
+    elt: HTMLElement,
+    str: string,
+    extraCssClasses: string | null = null
+) {
     var cssClass = 'data-sneetch-extension';
     if (extraCssClasses) {
         cssClass += ' ' + extraCssClasses;
