@@ -33,6 +33,10 @@ Token](https://help.github.com/articles/creating-a-personal-access-token-for-the
 If you want Sneetches to add metadata to links to private repositories, give
 this token "repo" scope. Otherwise, it doesn't need any scopes.
 
+## Contributing
+
+See [docs/CONTRIBUTING](./docs/CONTRIBUTING.md).
+
 ## Similar Projects
 
 * [Github Hovercard](https://justineo.github.io/github-hovercard/) shows *more* information, on *hover* instead of inline.
