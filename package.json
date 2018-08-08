@@ -1,31 +1,32 @@
 {
-    "name": "sneetches",
-    "version": "0.3.1",
-    "description": "Adds stars next to GitHub repo links",
-    "author": "Oliver Steele <steele@osteele.com>",
-    "license": "MIT",
-    "main": "src/content.js",
-    "scripts": {
-        "dev": "webpack --mode development",
-        "test": "jest",
-        "build": "webpack --mode production",
-        "watch": "webpack --mode development --watch"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/osteele/sneetches.git"
-    },
-    "devDependencies": {
-        "@types/chrome": "^0.0.69",
-        "@types/jest": "^23.3.1",
-        "clean-webpack-plugin": "^0.1.19",
-        "copy-webpack-plugin": "^4.5.2",
-        "jest": "^23.4.2",
-        "jest-webextension-mock": "^3.3.0",
-        "ts-jest": "^23.1.2",
-        "ts-loader": "^4.4.2",
-        "typescript": "^2.9.2",
-        "webpack": "^4.16.1",
-        "webpack-cli": "^3.0.8"
-    }
+  "name": "sneetches",
+  "version": "0.3.1",
+  "description": "Adds stars next to GitHub repo links",
+  "author": "Oliver Steele <steele@osteele.com>",
+  "license": "MIT",
+  "main": "src/content.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development",
+    "package": "make build",
+    "test": "jest",
+    "watch": "webpack --mode development --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osteele/sneetches.git"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.69",
+    "@types/jest": "^23.3.1",
+    "clean-webpack-plugin": "^0.1.19",
+    "copy-webpack-plugin": "^4.5.2",
+    "jest": "^23.4.2",
+    "jest-webextension-mock": "^3.3.0",
+    "ts-jest": "^23.1.2",
+    "ts-loader": "^4.4.2",
+    "typescript": "^2.9.2",
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.0.8"
+  }
 }

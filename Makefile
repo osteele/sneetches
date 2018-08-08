@@ -7,7 +7,7 @@ publish: build
 
 build: $(TARGET)
 
-$(TARGET): src/*.css src/*.html src/*.js src/*.json src/images/*.png
+$(TARGET): src/*.css src/*.html src/*.ts src/*.json src/images/*.png
 	@rm -rf dist
 	@mkdir -p dist
 	yarn build
