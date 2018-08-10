@@ -1,5 +1,6 @@
 import { ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY } from './constants';
 
+const ANNOTATION_CLASS = 'data-sneetch-extension';
 const CACHE_DUR_SECONDS = 2 * 3600;
 
 type ShowType = { forks: boolean; stars: boolean; update: boolean };
@@ -57,7 +58,18 @@ function locallyCached<T>(
   );
 }
 
-const ghLinks: [HTMLAnchorElement] = Array.prototype.slice
+export const isRepoUrl: (_: string) => boolean = (href: string) =>
+  Boolean(
+    href &&
+      href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
+      !href.match('^https?://github.com/(site|topics)')
+  );
+
+export const isRepoLink: (elt: HTMLAnchorElement) => boolean = (
+  elt: HTMLAnchorElement
+) => isRepoUrl(elt.href) && elt.childElementCount == 0;
+
+const ghLinks: HTMLAnchorElement[] = Array.prototype.slice
   .call(document.querySelectorAll('a[href^="https://github.com/"]'))
   .concat(
     Array.prototype.slice.call(
@@ -65,19 +77,12 @@ const ghLinks: [HTMLAnchorElement] = Array.prototype.slice
     )
   );
 
-const repoLinks = ghLinks.filter((elt: HTMLAnchorElement) => {
-  const href = elt.href;
-  return (
-    href &&
-    href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
-    !href.match('^https?://github.com/(site|topics)') &&
-    elt.childElementCount == 0
-  );
-});
+const repoLinks = ghLinks.filter(isRepoLink);
 
+// Remove sneetch annotations from the document.
 const removeLinkAnnotations = () =>
   Array.prototype.forEach.call(
-    document.querySelectorAll('.data-sneetch-extension'),
+    document.querySelectorAll('.' + ANNOTATION_CLASS),
     (node: HTMLElement) => node.parentNode && node.parentNode.removeChild(node)
   );
 
@@ -182,13 +187,13 @@ function createAnnotation(
   str: string,
   extraCssClasses: string | null = null
 ) {
-  var cssClass = 'data-sneetch-extension';
+  var cssClass = ANNOTATION_CLASS;
   if (extraCssClasses) {
     cssClass += ' ' + extraCssClasses;
   }
   const info = document.createElement('small');
   info.setAttribute('class', cssClass);
-  info.setAttribute('data-sneetch-extension', 'true');
+  info.setAttribute(ANNOTATION_CLASS, 'true');
   info.innerText = str;
   elt.appendChild(info);
   return info;

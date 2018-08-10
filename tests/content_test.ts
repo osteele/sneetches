@@ -1,4 +1,4 @@
-import { commify, settingsP } from '../src/content';
+import { commify, isRepoUrl, settingsP } from '../src/content';
 
 describe('settingsP', () => {
   test('uses default', async () => {
@@ -25,8 +25,19 @@ describe('settingsP', () => {
   });
 });
 
-describe('repoLinks', () => {
-  test.skip('returns GitHub repo links', () => {});
+describe('isRepoUrl', () => {
+  test('recognizes GitHub repo urls', () => {
+    expect(isRepoUrl('https://github.com/owner/name')).toBe(true);
+    expect(isRepoUrl('http://github.com/owner/name')).toBe(true);
+    expect(isRepoUrl('http://github.com/owner/name/')).toBe(true);
+  });
+  test('rejects non-GitHub urls', () => {
+    expect(isRepoUrl('http://example.com/owner/name')).toBe(false);
+  });
+  test('rejects GitHub non-repo urls', () => {
+    expect(isRepoUrl('https://github.com/site/something')).toBe(false);
+    expect(isRepoUrl('https://github.com/topics/something')).toBe(false);
+  });
 });
 
 test('commify', () => {
