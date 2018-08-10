@@ -124,39 +124,40 @@ const updateLinks = () =>
         getRepoData(m[1])
           .then(res => {
             if (res.ok) {
-              addAnnotation(elt, res.json, show);
+              elt.appendChild(createAnnotation(res.json, show));
             } else {
-              addErrorAnnotation(elt, res, accessToken);
+              elt.appendChild(createErrorAnnotation(res, accessToken));
             }
           })
           .catch(err => {
-            addErrorAnnotation(elt, err, accessToken);
+            elt.appendChild(createErrorAnnotation(err, accessToken));
           });
     })
   );
 
-function addErrorAnnotation(
-  elt: HTMLElement,
+export function createErrorAnnotation(
   res: { status: number; headers: { get: (_: string) => string } },
-  accessToken: string
+  accessToken: string,
+  reportError: (_: string, ..._2: any[]) => void = console.error
 ) {
   if (res.status == 403) {
-    const an = createAnnotation(elt, ' (⏳)');
+    const an = _createAnnotation(' (⏳)');
     const when = new Date(Number(res.headers.get('X-RateLimit-Reset')) * 1000);
     const title = accessToken
       ? 'The GitHub API rate limit has been exceeded.' +
         `No API calls are available until {when}.`
       : 'Please set up your Github Personal Access Token';
     an.setAttribute('title', title);
+    return an;
   } else if (res.status == 404) {
-    createAnnotation(elt, ' (missing⚰️)', 'missing');
+    return _createAnnotation(' (missing⚰️)', 'missing');
   } else {
-    console.error('sneetches: request status =', res.status);
+    reportError('sneetches: request status =', res.status);
+    return _createAnnotation('');
   }
 }
 
-function addAnnotation(
-  elt: HTMLElement,
+export function createAnnotation(
   data: { forks_count: number; stargazers_count: number; pushed_at: string },
   show: ShowType
 ) {
@@ -175,18 +176,14 @@ function addAnnotation(
   if (show.stars) {
     text.push(commify(data.stargazers_count) + '⭐');
   }
-  createAnnotation(elt, ' (' + text.join('; ') + ')');
+  return _createAnnotation(' (' + text.join('; ') + ')');
 }
 
 export function commify(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function createAnnotation(
-  elt: HTMLElement,
-  str: string,
-  extraCssClasses: string | null = null
-) {
+function _createAnnotation(str: string, extraCssClasses: string | null = null) {
   var cssClass = ANNOTATION_CLASS;
   if (extraCssClasses) {
     cssClass += ' ' + extraCssClasses;
@@ -195,7 +192,6 @@ function createAnnotation(
   info.setAttribute('class', cssClass);
   info.setAttribute(ANNOTATION_CLASS, 'true');
   info.innerText = str;
-  elt.appendChild(info);
   return info;
 }
 
