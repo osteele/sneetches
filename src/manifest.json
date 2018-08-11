@@ -1,27 +1,28 @@
 {
-    "name": "Sneetches for GitHub",
-    "short_name": "Sneetches",
-    "version": "0.3.1",
-    "author": "Oliver Steele",
-    "description": "Adds stars next to GitHub repo links",
-    "homepage_url": "https://github.com/osteele/sneetches",
-    "manifest_version": 2,
-    "permissions": ["<all_urls>", "storage"],
-    "icons": {
-        "128": "images/icon128.png"
-    },
-    "content_scripts": [
-        {
-            "matches": ["*://*/*"],
-            "js": ["content.js"],
-            "css": ["style.css"]
-        }
-    ],
-    "options_page": "options.html",
-    "browser_action": {
-        "default_icon": {
-            "128": "images/icon32.png"
-        },
-        "default_popup": "options.html"
+  "name": "Sneetches for GitHub",
+  "short_name": "Sneetches",
+  "version": "0.3.1",
+  "author": "Oliver Steele",
+  "description": "Adds stars next to GitHub repo links",
+  "homepage_url": "https://github.com/osteele/sneetches",
+  "manifest_version": 2,
+  "permissions": ["<all_urls>", "storage"],
+  "icons": {
+    "128": "images/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
     }
+  ],
+  "options_page": "options.html",
+  "browser_action": {
+    "default_icon": {
+      "128": "images/icon32.png"
+    },
+    "default_popup": "options.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
