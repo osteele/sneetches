@@ -3,6 +3,20 @@ import { ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY } from './constants';
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 const CACHE_DUR_SECONDS = 2 * 3600;
 
+const ColoredSymbols = {
+  forks: '➡',
+  missing: 'missing⚰️',
+  stars: '⭐',
+  pushedAt: '🗓'
+};
+
+const Symbols = {
+  forks: '⑃',
+  missing: 'missingⓍ',
+  stars: '★',
+  pushedAt: '➲' // ⧗➟➠
+};
+
 type ShowType = { forks: boolean; stars: boolean; update: boolean };
 
 const accessTokenP = () => settingsP().then(object => object.accessToken);
@@ -69,15 +83,10 @@ export const isRepoLink: (elt: HTMLAnchorElement) => boolean = (
   elt: HTMLAnchorElement
 ) => isRepoUrl(elt.href) && elt.childElementCount == 0;
 
-const ghLinks: HTMLAnchorElement[] = Array.prototype.slice
-  .call(document.querySelectorAll('a[href^="https://github.com/"]'))
-  .concat(
-    Array.prototype.slice.call(
-      document.querySelectorAll('a[href^="http://github.com/"]')
-    )
-  );
-
-const repoLinks = ghLinks.filter(isRepoLink);
+const repoLinks = [
+  ...document.querySelectorAll('a[href^="https://github.com/"]'),
+  ...document.querySelectorAll('a[href^="http://github.com/"]')
+].filter(isRepoLink) as HTMLAnchorElement[];
 
 // Remove sneetch annotations from the document.
 const removeLinkAnnotations = () =>
@@ -117,10 +126,10 @@ function getRepoData(nwo: string): Promise<any> {
 
 const updateLinks = () =>
   settingsP().then(({ accessToken, show }) =>
-    repoLinks.forEach(function(elt) {
+    repoLinks.forEach(elt => {
       const href = elt.href;
       const m = href.match('^https?://github.com/(.+?)(?:.git)?/?$');
-      m &&
+      if (m) {
         getRepoData(m[1])
           .then(res => {
             if (res.ok) {
@@ -132,6 +141,7 @@ const updateLinks = () =>
           .catch(err => {
             elt.appendChild(createErrorAnnotation(err, accessToken));
           });
+      }
     })
   );
 
@@ -150,7 +160,7 @@ export function createErrorAnnotation(
     an.setAttribute('title', title);
     return an;
   } else if (res.status == 404) {
-    return _createAnnotation(' (missing⚰️)', 'missing');
+    return _createAnnotation(' (' + Symbols.missing + ')', 'missing');
   } else {
     reportError('sneetches: request status =', res.status);
     return _createAnnotation('');
@@ -163,7 +173,7 @@ export function createAnnotation(
 ) {
   const text = [];
   if (show.forks) {
-    text.push(commify(data.forks_count) + '🍴');
+    text.push(commify(data.forks_count) + Symbols.forks);
   }
   if (show.update) {
     const when = new Date(data.pushed_at);
@@ -171,10 +181,10 @@ export function createAnnotation(
     if (when.getFullYear() === new Date().getFullYear()) {
       whenStr = whenStr.replace(RegExp('/' + when.getFullYear() + '$'), '');
     }
-    text.push('➡' + whenStr);
+    text.push(Symbols.pushedAt + whenStr);
   }
   if (show.stars) {
-    text.push(commify(data.stargazers_count) + '⭐');
+    text.push(commify(data.stargazers_count) + Symbols.stars);
   }
   return _createAnnotation(' (' + text.join('; ') + ')');
 }
