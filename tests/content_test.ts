@@ -2,17 +2,17 @@ import {
   commify,
   createAnnotation,
   createErrorAnnotation,
-  isRepoUrl,
-  settingsP
+  getSettings,
+  isRepoUrl
 } from '../src/content';
 
 describe('settingsP', () => {
-  test('uses default', async () => {
-    const settings = await settingsP();
+  test('uses defaults', async () => {
+    const settings = await getSettings();
     expect(settings).toEqual({
       enabled: true,
       accessToken: undefined,
-      show: { stars: true }
+      show: { stars: true, forks: false, update: false }
     });
   });
 
@@ -20,13 +20,13 @@ describe('settingsP', () => {
     await chrome.storage.sync.set({
       enabled: false,
       access_token: '<<token value>>',
-      show: { stars: false, forks: true }
+      show: { stars: false, forks: true, update: false }
     });
-    const settings = await settingsP();
+    const settings = await getSettings();
     expect(settings).toEqual({
       enabled: false,
       accessToken: '<<token value>>',
-      show: { stars: false, forks: true }
+      show: { stars: false, forks: true, update: false }
     });
   });
 });

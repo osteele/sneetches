@@ -1,6 +1,7 @@
 import { ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY } from './constants';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
+const ANNOTATION_ATTR = 'data-sneetch-extension';
 const CACHE_DUR_SECONDS = 2 * 3600;
 
 const ColoredSymbols = {
@@ -14,19 +15,18 @@ const Symbols = {
   forks: '⑃',
   missing: 'missingⓍ',
   stars: '★',
-  pushedAt: '➲' // ⧗➟➠
+  pushedAt: '➲' // Alternatives: ⧗➟➠
 };
 
 type ShowType = { forks: boolean; stars: boolean; update: boolean };
+const DefaultShow: ShowType = { forks: false, stars: true, update: false };
 
-const accessTokenP = () => settingsP().then(object => object.accessToken);
-
-export const settingsP: () => Promise<{
+export function getSettings(): Promise<{
   accessToken: string;
   enabled: boolean;
   show: ShowType;
-}> = () =>
-  new Promise((resolve, reject) =>
+}> {
+  return new Promise((resolve, reject) =>
     chrome.storage.sync.get(
       [ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY],
       object =>
@@ -35,10 +35,14 @@ export const settingsP: () => Promise<{
           : resolve({
               accessToken: object[ACCESS_TOKEN_KEY],
               enabled: object[ENABLED_KEY] === undefined || object[ENABLED_KEY],
-              show: object[SHOW_KEY] || { stars: true }
+              show: { ...DefaultShow, ...object[SHOW_KEY] }
             })
     )
   );
+}
+
+const getAccessToken: () => Promise<string> = () =>
+  getSettings().then(object => object.accessToken);
 
 // function locallyCached<T>: (string,any,()=>T)=>Promise<T> = (key:string, version:any, thunk) =>
 function locallyCached<T>(
@@ -110,7 +114,7 @@ function marshallableResponse(
 
 function getRepoData(nwo: string): Promise<any> {
   return locallyCached(nwo, 1, () =>
-    accessTokenP().then(accessToken => {
+    getAccessToken().then(accessToken => {
       const headers = accessToken
         ? new Headers({
             Authorization: 'Bearer ' + accessToken
@@ -124,26 +128,26 @@ function getRepoData(nwo: string): Promise<any> {
   );
 }
 
-const updateLinks = () =>
-  settingsP().then(({ accessToken, show }) =>
-    repoLinks.forEach(elt => {
-      const href = elt.href;
-      const m = href.match('^https?://github.com/(.+?)(?:.git)?/?$');
-      if (m) {
-        getRepoData(m[1])
-          .then(res => {
-            if (res.ok) {
-              elt.appendChild(createAnnotation(res.json, show));
-            } else {
-              elt.appendChild(createErrorAnnotation(res, accessToken));
-            }
-          })
-          .catch(err => {
-            elt.appendChild(createErrorAnnotation(err, accessToken));
-          });
-      }
-    })
-  );
+async function updateLinks() {
+  const { accessToken, show } = await getSettings();
+  repoLinks.forEach(elt => {
+    const href = elt.href;
+    const m = href.match('^https?://github.com/(.+?)(?:.git)?/?$');
+    if (m) {
+      getRepoData(m[1])
+        .then(res => {
+          if (res.ok) {
+            elt.appendChild(createAnnotation(res.json, show));
+          } else {
+            elt.appendChild(createErrorAnnotation(res, accessToken));
+          }
+        })
+        .catch(err => {
+          elt.appendChild(createErrorAnnotation(err, accessToken));
+        });
+    }
+  });
+}
 
 export function createErrorAnnotation(
   res: { status: number; headers: { get: (_: string) => string } },
@@ -198,19 +202,18 @@ function _createAnnotation(str: string, extraCssClasses: string | null = null) {
   if (extraCssClasses) {
     cssClass += ' ' + extraCssClasses;
   }
-  const info = document.createElement('small');
-  info.setAttribute('class', cssClass);
-  info.setAttribute(ANNOTATION_CLASS, 'true');
-  info.innerText = str;
-  return info;
+  const elt = document.createElement('small');
+  elt.setAttribute('class', cssClass);
+  elt.setAttribute(ANNOTATION_ATTR, 'true');
+  elt.innerText = str;
+  return elt;
 }
 
-function updateAnnotationsFromSettings() {
-  settingsP().then(({ enabled }) => {
-    if (enabled || enabled === undefined) {
-      updateLinks();
-    }
-  });
+async function updateAnnotationsFromSettings() {
+  const { enabled } = await getSettings();
+  if (enabled) {
+    updateLinks();
+  }
 }
 
 updateAnnotationsFromSettings();
