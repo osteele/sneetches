@@ -12,7 +12,6 @@ function syncStorageGet(
 
 describe('restoreOptions', () => {
   document.body.innerHTML = `<div>
-    <input id='enabled' type="checkbox" checked>
     <input id='show-stars' type="checkbox" checked>
     <input id='show-forks' type="checkbox">
     <input id='show-update' type="checkbox">
@@ -37,7 +36,6 @@ describe('restoreOptions', () => {
 
 describe('restoreOptions', () => {
   document.body.innerHTML = `<div>
-    <input id='enabled' type="checkbox">
     <input id='show-stars' type="checkbox">
     <input id='show-forks' type="checkbox">
     <input id='show-update' type="checkbox">
@@ -48,7 +46,6 @@ describe('restoreOptions', () => {
     document.dispatchEvent(
       new Event('DOMContentLoaded', { bubbles: true, cancelable: true })
     );
-    expect(inputElement('enabled').checked).toBe(true);
     expect(inputElement('access-token').value).toBe('');
     expect(inputElement('show-forks').checked).toBe(false);
     expect(inputElement('show-stars').checked).toBe(true);
@@ -63,7 +60,6 @@ describe('restoreOptions', () => {
     document.dispatchEvent(
       new Event('DOMContentLoaded', { bubbles: true, cancelable: true })
     );
-    expect(inputElement('enabled').checked).toBe(true);
     expect(inputElement('access-token').value).toBe('<<access token>>');
     expect(inputElement('show-forks').checked).toBe(true);
     expect(inputElement('show-stars').checked).toBe(false);

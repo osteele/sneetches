@@ -10,7 +10,6 @@ describe('settingsP', () => {
   test('uses defaults', async () => {
     const settings = await getSettings();
     expect(settings).toEqual({
-      enabled: true,
       accessToken: undefined,
       show: { stars: true, forks: false, update: false }
     });
@@ -24,7 +23,6 @@ describe('settingsP', () => {
     });
     const settings = await getSettings();
     expect(settings).toEqual({
-      enabled: false,
       accessToken: '<<token value>>',
       show: { stars: false, forks: true, update: false }
     });

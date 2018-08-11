@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY } from './constants';
+import { ACCESS_TOKEN_KEY, SHOW_KEY } from './constants';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 const ANNOTATION_ATTR = 'data-sneetch-extension';
@@ -23,18 +23,16 @@ const DefaultShow: ShowType = { forks: false, stars: true, update: false };
 
 export function getSettings(): Promise<{
   accessToken: string;
-  enabled: boolean;
   show: ShowType;
 }> {
   return new Promise((resolve, reject) =>
     chrome.storage.sync.get(
-      [ACCESS_TOKEN_KEY, ENABLED_KEY, SHOW_KEY],
+      [ACCESS_TOKEN_KEY, SHOW_KEY],
       object =>
         chrome.runtime.lastError
           ? reject(chrome.runtime.lastError)
           : resolve({
               accessToken: object[ACCESS_TOKEN_KEY],
-              enabled: object[ENABLED_KEY] === undefined || object[ENABLED_KEY],
               show: { ...DefaultShow, ...object[SHOW_KEY] }
             })
     )
@@ -210,8 +208,8 @@ function _createAnnotation(str: string, extraCssClasses: string | null = null) {
 }
 
 async function updateAnnotationsFromSettings() {
-  const { enabled } = await getSettings();
-  if (enabled) {
+  const { show } = await getSettings();
+  if (Object.values(show).some(Boolean)) {
     updateLinks();
   }
 }
