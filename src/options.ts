@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN_KEY, SHOW_KEY } from './constants';
+import { ACCESS_TOKEN_KEY, DefaultShowSettings, SHOW_KEY } from './settings';
 
 export function inputElement(id: string): HTMLInputElement {
   return document.querySelector('#' + id) as HTMLInputElement;
@@ -18,10 +18,8 @@ function saveOptions() {
 function restoreOptions() {
   chrome.storage.sync.get([ACCESS_TOKEN_KEY, SHOW_KEY], object => {
     const accessToken = object[ACCESS_TOKEN_KEY];
-    const show = object[SHOW_KEY] || { stars: true };
-    if (accessToken) {
-      inputElement('access-token').value = accessToken;
-    }
+    const show = { ...DefaultShowSettings, ...(object[SHOW_KEY] || {}) };
+    inputElement('access-token').value = accessToken || '';
     inputElement('show-forks').checked = show.forks;
     inputElement('show-stars').checked = show.stars;
     inputElement('show-update').checked = show.update;

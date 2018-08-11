@@ -1,4 +1,9 @@
-import { ACCESS_TOKEN_KEY, SHOW_KEY } from './constants';
+import {
+  ACCESS_TOKEN_KEY,
+  getAccessToken,
+  getSettings,
+  ShowSettings
+} from './settings';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 const ANNOTATION_ATTR = 'data-sneetch-extension';
@@ -17,30 +22,6 @@ const Symbols = {
   stars: '★',
   pushedAt: '➲' // Alternatives: ⧗➟➠
 };
-
-type ShowType = { forks: boolean; stars: boolean; update: boolean };
-const DefaultShow: ShowType = { forks: false, stars: true, update: false };
-
-export function getSettings(): Promise<{
-  accessToken: string;
-  show: ShowType;
-}> {
-  return new Promise((resolve, reject) =>
-    chrome.storage.sync.get(
-      [ACCESS_TOKEN_KEY, SHOW_KEY],
-      object =>
-        chrome.runtime.lastError
-          ? reject(chrome.runtime.lastError)
-          : resolve({
-              accessToken: object[ACCESS_TOKEN_KEY],
-              show: { ...DefaultShow, ...object[SHOW_KEY] }
-            })
-    )
-  );
-}
-
-const getAccessToken: () => Promise<string> = () =>
-  getSettings().then(object => object.accessToken);
 
 // function locallyCached<T>: (string,any,()=>T)=>Promise<T> = (key:string, version:any, thunk) =>
 function locallyCached<T>(
@@ -171,7 +152,7 @@ export function createErrorAnnotation(
 
 export function createAnnotation(
   data: { forks_count: number; stargazers_count: number; pushed_at: string },
-  show: ShowType
+  show: ShowSettings
 ) {
   const text = [];
   if (show.forks) {
