@@ -1,14 +1,8 @@
-import { locallyCached } from './cache';
-import {
-  ACCESS_TOKEN_KEY,
-  getAccessToken,
-  getSettings,
-  ShowSettings
-} from './settings';
+import { getRepoData } from './github';
+import { ACCESS_TOKEN_KEY, getSettings, ShowSettings } from './settings';
 import { commify } from './utils';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
-const ANNOTATION_ATTR = 'data-sneetch-extension';
 
 const ColoredSymbols = {
   forks: '➡',
@@ -47,35 +41,6 @@ const removeLinkAnnotations = () =>
     (node: HTMLElement) => node.parentNode && node.parentNode.removeChild(node)
   );
 
-function marshallableResponse(
-  res: Response
-): PromiseLike<{ ok: boolean; status?: number; json?: {} }> {
-  return new Promise((resolve, reject) => {
-    const { ok, status } = res;
-    if (ok) {
-      res.json().then(json => resolve({ ok: true, json }));
-    } else if (status === 404) {
-      resolve({ ok: false, status });
-    } else reject({ ok: false, status });
-  });
-}
-
-function getRepoData(nwo: string): Promise<any> {
-  return locallyCached(nwo, 1, () =>
-    getAccessToken().then(accessToken => {
-      const headers = accessToken
-        ? new Headers({
-            Authorization: 'Bearer ' + accessToken
-          })
-        : null;
-      const options = headers ? { headers } : {};
-      return fetch('https://api.github.com/repos/' + nwo, options).then(
-        marshallableResponse
-      );
-    })
-  );
-}
-
 async function updateLinks() {
   const { accessToken, show } = await getSettings();
   repoLinks.forEach(elt => {
@@ -85,7 +50,7 @@ async function updateLinks() {
       getRepoData(m[1])
         .then(res => {
           if (res.ok) {
-            elt.appendChild(createAnnotation(res.json, show));
+            elt.appendChild(createAnnotation(res.json!, show));
           } else {
             elt.appendChild(createErrorAnnotation(res, accessToken));
           }
@@ -98,13 +63,13 @@ async function updateLinks() {
 }
 
 export function createErrorAnnotation(
-  res: { status: number; headers: { get: (_: string) => string } },
+  res: { status?: number; headers?: { get: (_: string) => string } },
   accessToken: string,
   reportError: (_: string, ..._2: any[]) => void = console.error
 ) {
   if (res.status == 403) {
     const an = _createAnnotation(' (⏳)');
-    const when = new Date(Number(res.headers.get('X-RateLimit-Reset')) * 1000);
+    const when = new Date(Number(res.headers!.get('X-RateLimit-Reset')) * 1000);
     const title = accessToken
       ? 'The GitHub API rate limit has been exceeded.' +
         `No API calls are available until {when}.`
@@ -148,7 +113,6 @@ function _createAnnotation(str: string, extraCssClasses: string | null = null) {
   }
   const elt = document.createElement('small');
   elt.setAttribute('class', cssClass);
-  elt.setAttribute(ANNOTATION_ATTR, 'true');
   elt.innerText = str;
   return elt;
 }

@@ -1,6 +1,6 @@
 const CACHE_DUR_SECONDS = 2 * 3600;
 
-type Entry<T, V> = { exp: number; ver: V; pay: T };
+type Entry<T, V> = { readonly exp: number; readonly ver: V; readonly pay: T };
 
 /// If there's local storage contains an unexpired cache entry for `key` with
 /// the specified version, return a promise with its value. Else call `thunk`,
@@ -8,7 +8,7 @@ type Entry<T, V> = { exp: number; ver: V; pay: T };
 export function locallyCached<T, V>(
   key: string,
   version: V,
-  thunk: () => T
+  thunk: () => T | PromiseLike<T>
 ): Promise<T> {
   return new Promise((resolve, reject) =>
     chrome.storage.local.get([key], object => {
