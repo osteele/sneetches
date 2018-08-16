@@ -1,9 +1,13 @@
 const CACHE_DUR_SECONDS = 2 * 3600;
 
-// function locallyCached<T>: (string,any,()=>T)=>Promise<T> = (key:string, version:any, thunk) =>
-export function locallyCached<T>(
+type Entry<T, V> = { exp: number; ver: V; pay: T };
+
+/// If there's local storage contains an unexpired cache entry for `key` with
+/// the specified version, return a promise with its value. Else call `thunk`,
+/// store its value in the cache, and return a promise with that value.
+export function locallyCached<T, V>(
   key: string,
-  version: any,
+  version: V,
   thunk: () => T
 ): Promise<T> {
   return new Promise((resolve, reject) =>
@@ -11,7 +15,7 @@ export function locallyCached<T>(
       if (chrome.runtime.lastError) {
         return reject(chrome.runtime.lastError);
       }
-      const entry = object[key];
+      const entry: Entry<T, V> = object[key];
       const now = Date.now();
       if (entry && entry.exp > now && entry.ver === version) {
         resolve(entry.pay);
