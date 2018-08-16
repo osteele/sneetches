@@ -1,6 +1,6 @@
 {
   "name": "sneetches",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Adds stars next to GitHub repo links",
   "author": "Oliver Steele <steele@osteele.com>",
   "license": "MIT",
