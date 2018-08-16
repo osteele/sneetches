@@ -1,5 +1,4 @@
 import {
-  commify,
   createAnnotation,
   createErrorAnnotation,
   isRepoUrl
@@ -18,11 +17,6 @@ describe('isRepoUrl', () => {
     expect(isRepoUrl('https://github.com/site/something')).toBe(false);
     expect(isRepoUrl('https://github.com/topics/something')).toBe(false);
   });
-});
-
-test('commify', () => {
-  expect(commify(123)).toBe('123');
-  expect(commify(1234)).toBe('1,234');
 });
 
 describe('createAnnotation', () => {

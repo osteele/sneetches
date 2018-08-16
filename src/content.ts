@@ -1,13 +1,14 @@
+import { locallyCached } from './cache';
 import {
   ACCESS_TOKEN_KEY,
   getAccessToken,
   getSettings,
   ShowSettings
 } from './settings';
+import { commify } from './utils';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 const ANNOTATION_ATTR = 'data-sneetch-extension';
-const CACHE_DUR_SECONDS = 2 * 3600;
 
 const ColoredSymbols = {
   forks: '➡',
@@ -22,38 +23,6 @@ const Symbols = {
   stars: '★',
   pushedAt: '➲' // Alternatives: ⧗➟➠
 };
-
-// function locallyCached<T>: (string,any,()=>T)=>Promise<T> = (key:string, version:any, thunk) =>
-function locallyCached<T>(
-  key: string,
-  version: any,
-  thunk: () => T
-): Promise<T> {
-  return new Promise((resolve, reject) =>
-    chrome.storage.local.get([key], object => {
-      if (chrome.runtime.lastError) {
-        return reject(chrome.runtime.lastError);
-      }
-      const entry = object[key];
-      const now = Date.now();
-      if (entry && entry.exp > now && entry.ver === version) {
-        resolve(entry.pay);
-      } else {
-        Promise.resolve(thunk()).then(pay => {
-          const exp = Date.now() + CACHE_DUR_SECONDS * 1000;
-          const object = {
-            [key]: { exp, pay, ver: version }
-          };
-          chrome.storage.local.set(
-            object,
-            () => chrome.runtime.lastError && chrome.storage.local.clear()
-          );
-          resolve(pay);
-        });
-      }
-    })
-  );
-}
 
 export const isRepoUrl: (_: string) => boolean = (href: string) =>
   Boolean(
@@ -170,10 +139,6 @@ export function createAnnotation(
     text.push(commify(data.stargazers_count) + Symbols.stars);
   }
   return _createAnnotation(' (' + text.join('; ') + ')');
-}
-
-export function commify(n: number): string {
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function _createAnnotation(str: string, extraCssClasses: string | null = null) {
