@@ -1,7 +1,11 @@
 .data-sneetch-extension {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .data-sneetch-extension.missing {
-    color: red;
+  color: red;
+}
+
+.fork-flag.lovely-forks-addon .data-sneetch-extension {
+  display: none;
 }
