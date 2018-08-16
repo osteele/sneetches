@@ -29,8 +29,8 @@ function marshallableResponse(res: Response): PromiseLike<RepoResponse> {
 }
 
 /// Retrieve the repo info from GitHub or from the cache. Successful responses
-/// and 404's are cached. TODO: Other errors such as 403 are considered
-/// transient, and are not cached.
+/// and 404's are cached. Other errors such as 403 are considered transient, and
+/// are not cached.
 export function getRepoData(nwo: string): Promise<RepoResponse> {
   return locallyCached(nwo, CACHE_VERSION, () =>
     getAccessToken().then(accessToken => {

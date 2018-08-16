@@ -5,6 +5,10 @@ type Entry<T, V> = { readonly exp: number; readonly ver: V; readonly pay: T };
 /// If there's local storage contains an unexpired cache entry for `key` with
 /// the specified version, return a promise with its value. Else call `thunk`,
 /// store its value in the cache, and return a promise with that value.
+///
+/// If there's an error storing the value, it clears the local storage area.
+/// This is okay in the context of this extension, since persistent settings are
+/// in the sync storage area.
 export function locallyCached<T, V>(
   key: string,
   version: V,
@@ -30,7 +34,7 @@ export function locallyCached<T, V>(
             () => chrome.runtime.lastError && chrome.storage.local.clear()
           );
           resolve(pay);
-        });
+        }, reject);
       }
     })
   );
