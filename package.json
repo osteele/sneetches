@@ -17,11 +17,18 @@
     "type": "git",
     "url": "https://github.com/osteele/sneetches.git"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint --fix",
+      "pre-push": "yarn test"
+    }
+  },
   "devDependencies": {
     "@types/chrome": "^0.0.69",
     "@types/jest": "^23.3.1",
     "clean-webpack-plugin": "^0.1.19",
     "copy-webpack-plugin": "^4.5.2",
+    "husky": "^1.0.0-rc.13",
     "jest": "^23.4.2",
     "jest-webextension-mock": "^3.3.0",
     "ts-jest": "^23.1.2",
