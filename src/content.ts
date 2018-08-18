@@ -7,55 +7,55 @@ const ANNOTATION_CLASS = 'data-sneetch-extension';
 const ColoredSymbols = {
   forks: '➡',
   missing: 'missing⚰️',
+  pushedAt: '🗓',
   stars: '⭐',
-  pushedAt: '🗓'
 };
 
 const Symbols = {
   forks: '⑃',
   missing: 'missingⓍ',
+  pushedAt: '➲', // Alternatives: ⧗➟➠
   stars: '★',
-  pushedAt: '➲' // Alternatives: ⧗➟➠
 };
 
 export const isRepoUrl: (_: string) => boolean = (href: string) =>
   Boolean(
     href &&
       href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
-      !href.match('^https?://github.com/(site|topics)')
+      !href.match('^https?://github.com/(site|topics)'),
   );
 
 export const isRepoLink: (elt: HTMLAnchorElement) => boolean = (
-  elt: HTMLAnchorElement
-) => isRepoUrl(elt.href) && elt.childElementCount == 0;
+  elt: HTMLAnchorElement,
+) => isRepoUrl(elt.href) && elt.childElementCount === 0;
 
 const repoLinks = [
   ...document.querySelectorAll('a[href^="https://github.com/"]'),
-  ...document.querySelectorAll('a[href^="http://github.com/"]')
+  ...document.querySelectorAll('a[href^="http://github.com/"]'),
 ].filter(isRepoLink) as HTMLAnchorElement[];
 
 // Remove sneetch annotations from the document.
 const removeLinkAnnotations = () =>
   Array.prototype.forEach.call(
     document.querySelectorAll('.' + ANNOTATION_CLASS),
-    (node: HTMLElement) => node.parentNode && node.parentNode.removeChild(node)
+    (node: HTMLElement) => node.parentNode && node.parentNode.removeChild(node),
   );
 
 async function updateLinks() {
   const { accessToken, show } = await getSettings();
-  repoLinks.forEach(elt => {
+  repoLinks.forEach((elt) => {
     const href = elt.href;
     const m = href.match('^https?://github.com/(.+?)(?:.git)?/?$');
     if (m) {
       getRepoData(m[1])
-        .then(res => {
+        .then((res) => {
           if (res.ok) {
             elt.appendChild(createAnnotation(res.json!, show));
           } else {
             elt.appendChild(createErrorAnnotation(res, accessToken));
           }
         })
-        .catch(err => {
+        .catch((err) => {
           elt.appendChild(createErrorAnnotation(err, accessToken));
         });
     }
@@ -65,18 +65,18 @@ async function updateLinks() {
 export function createErrorAnnotation(
   res: { status?: number; headers?: { get: (_: string) => string } },
   accessToken: string,
-  reportError: (_: string, ..._2: any[]) => void = console.error
+  reportError: (_: string, ..._2: any[]) => void = console.error,
 ) {
-  if (res.status == 403) {
+  if (res.status === 403) {
     const an = _createAnnotation(' (⏳)');
     const when = new Date(Number(res.headers!.get('X-RateLimit-Reset')) * 1000);
     const title = accessToken
       ? 'The GitHub API rate limit has been exceeded.' +
-        `No API calls are available until {when}.`
+        `No API calls are available until ${when}.`
       : 'Please set up your Github Personal Access Token';
     an.setAttribute('title', title);
     return an;
-  } else if (res.status == 404) {
+  } else if (res.status === 404) {
     return _createAnnotation(' (' + Symbols.missing + ')', 'missing');
   } else {
     reportError('sneetches: request status =', res.status);
@@ -86,7 +86,7 @@ export function createErrorAnnotation(
 
 export function createAnnotation(
   data: { forks_count: number; stargazers_count: number; pushed_at: string },
-  show: ShowSettings
+  show: ShowSettings,
 ) {
   const text = [];
   if (show.forks) {
@@ -94,7 +94,7 @@ export function createAnnotation(
   }
   if (show.update) {
     const when = new Date(data.pushed_at);
-    var whenStr = when.toLocaleDateString();
+    let whenStr = when.toLocaleDateString();
     if (when.getFullYear() === new Date().getFullYear()) {
       whenStr = whenStr.replace(RegExp('/' + when.getFullYear() + '$'), '');
     }
@@ -107,7 +107,7 @@ export function createAnnotation(
 }
 
 function _createAnnotation(str: string, extraCssClasses: string | null = null) {
-  var cssClass = ANNOTATION_CLASS;
+  let cssClass = ANNOTATION_CLASS;
   if (extraCssClasses) {
     cssClass += ' ' + extraCssClasses;
   }
@@ -127,7 +127,7 @@ async function updateAnnotationsFromSettings() {
 updateAnnotationsFromSettings();
 
 chrome.storage.onChanged.addListener((object, namespace) => {
-  if (namespace == 'sync') {
+  if (namespace === 'sync') {
     const accessTokenChange = object[ACCESS_TOKEN_KEY];
     if (
       accessTokenChange &&

@@ -8,6 +8,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development",
+    "lint": "tslint src/**/*.ts test/**/*.ts",
     "package": "make build",
     "test": "jest",
     "watch": "webpack --mode development --watch"
@@ -25,6 +26,7 @@
     "jest-webextension-mock": "^3.3.0",
     "ts-jest": "^23.1.2",
     "ts-loader": "^4.4.2",
+    "tslint": "^5.11.0",
     "typescript": "^2.9.2",
     "webpack": "^4.16.1",
     "webpack-cli": "^3.0.8"

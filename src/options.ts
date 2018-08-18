@@ -10,15 +10,15 @@ function saveOptions() {
     show: {
       forks: inputElement('show-forks').checked,
       stars: inputElement('show-stars').checked,
-      update: inputElement('show-update').checked
-    }
+      update: inputElement('show-update').checked,
+    },
   });
 }
 
 function restoreOptions() {
-  chrome.storage.sync.get([ACCESS_TOKEN_KEY, SHOW_KEY], object => {
-    const accessToken = object[ACCESS_TOKEN_KEY];
-    const show = { ...DefaultShowSettings, ...(object[SHOW_KEY] || {}) };
+  chrome.storage.sync.get([ACCESS_TOKEN_KEY, SHOW_KEY], (items) => {
+    const accessToken = items[ACCESS_TOKEN_KEY];
+    const show = { ...DefaultShowSettings, ...(items[SHOW_KEY] || {}) };
     inputElement('access-token').value = accessToken || '';
     inputElement('show-forks').checked = show.forks;
     inputElement('show-stars').checked = show.stars;
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', restoreOptions);
 export function addInputEventListeners() {
   Array.prototype.forEach.call(
     document.getElementsByTagName('input'),
-    (elt: HTMLElement) => addEventListener('change', saveOptions)
+    (elt: HTMLElement) => addEventListener('change', saveOptions),
   );
 }
 
