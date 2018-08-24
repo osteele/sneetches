@@ -38,7 +38,7 @@ describe('locallyCached', () => {
 
   test('passes rejections through', async () => {
     const thunk2 = jest.fn(
-      () => new Promise((_, reject) => reject('rejection'))
+      () => new Promise((_, reject) => reject('rejection')),
     );
     await expect(locallyCached('err', 1, thunk2)).rejects.toBe('rejection');
   });

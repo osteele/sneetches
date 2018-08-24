@@ -33,7 +33,7 @@ describe('getRepoData', () => {
     mockFetch({ ok: false, status: 403 });
     await expect(getRepoData('owner/repo')).rejects.toEqual({
       ok: false,
-      status: 403
+      status: 403,
     });
   });
   test("resolves 404's", async () => {
@@ -61,17 +61,17 @@ describe('getRepoData', () => {
 declare var global: any;
 
 function mockFetch({
+  json = null,
   ok = true,
   status = 200,
-  json = null
 }: {
   ok?: boolean;
   json?: any;
   status?: number;
 }) {
   global.fetch = jest.fn(async () => ({
+    json: async () => json,
     ok,
     status,
-    json: async () => json
   }));
 }

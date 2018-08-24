@@ -3,10 +3,10 @@ import { addInputEventListeners, inputElement } from '../src/options';
 // FIXME: this is a workaround for a deficiency(?) in @typing's
 // chrome.storage.sync.get
 function syncStorageGet(
-  keys: string | string[] | Object | null
+  keys: string | string[] | object | null,
 ): Promise<{ [key: string]: any }> {
   return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(keys, obj => resolve(obj));
+    chrome.storage.sync.get(keys, (obj) => resolve(obj));
   });
 }
 
@@ -44,7 +44,7 @@ describe('restoreOptions', () => {
 
   test('initial', () => {
     document.dispatchEvent(
-      new Event('DOMContentLoaded', { bubbles: true, cancelable: true })
+      new Event('DOMContentLoaded', { bubbles: true, cancelable: true }),
     );
     expect(inputElement('access-token').value).toBe('');
     expect(inputElement('show-forks').checked).toBe(false);
@@ -55,10 +55,10 @@ describe('restoreOptions', () => {
   test('from storage', () => {
     chrome.storage.sync.set({
       access_token: '<<access token>>',
-      show: { forks: true, stars: false, update: true }
+      show: { forks: true, stars: false, update: true },
     });
     document.dispatchEvent(
-      new Event('DOMContentLoaded', { bubbles: true, cancelable: true })
+      new Event('DOMContentLoaded', { bubbles: true, cancelable: true }),
     );
     expect(inputElement('access-token').value).toBe('<<access token>>');
     expect(inputElement('show-forks').checked).toBe(true);

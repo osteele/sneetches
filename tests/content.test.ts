@@ -1,14 +1,16 @@
 import {
   createAnnotation,
   createErrorAnnotation,
-  isRepoUrl
+  isRepoUrl,
 } from '../src/content';
 
 describe('isRepoUrl', () => {
   test('recognizes GitHub repo urls', () => {
-    expect(isRepoUrl('https://github.com/owner/name')).toBe(true);
     expect(isRepoUrl('http://github.com/owner/name')).toBe(true);
-    expect(isRepoUrl('http://github.com/owner/name/')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name/')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name.git')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name.git/')).toBe(true);
   });
   test('rejects non-GitHub urls', () => {
     expect(isRepoUrl('http://example.com/owner/name')).toBe(false);
@@ -22,15 +24,15 @@ describe('isRepoUrl', () => {
 describe('createAnnotation', () => {
   const data = {
     forks_count: 10,
+    pushed_at: '2018-09-10',
     stargazers_count: 10,
-    pushed_at: '2018-09-10'
   };
   // const show = {forks:false, stars:false, update:false};
   test('with forks', () => {
     const elt = createAnnotation(data, {
       forks: false,
       stars: true,
-      update: false
+      update: false,
     });
     expect(elt.outerHTML).toMatch('class="data-sneetch-extension"');
     expect(elt.innerText).toBe(' (10★)');
@@ -43,14 +45,14 @@ describe('createErrorAnnotation', () => {
     const elt = createErrorAnnotation({ status: 403, headers }, '');
     expect(elt.outerHTML).toMatch('class="data-sneetch-extension"');
     expect(elt.outerHTML).toMatch(
-      'title="Please set up your Github Personal Access Token"'
+      'title="Please set up your Github Personal Access Token"',
     );
     expect(elt.innerText).toBe(' (⏳)');
   });
   test.skip('with an access token', () => {
     const elt = createErrorAnnotation({ status: 403, headers }, 'access token');
     expect(elt.outerHTML).not.toMatch(
-      'title="Please set up your Github Personal Access Token"'
+      'title="Please set up your Github Personal Access Token"',
     );
   });
   test('for a missing repo', () => {
@@ -62,7 +64,7 @@ describe('createErrorAnnotation', () => {
     const elt = createErrorAnnotation(
       { status: 410, headers },
       '',
-      (..._: any[]) => null
+      (..._: any[]) => null,
     );
     expect(elt.outerHTML).toMatch(/></);
     expect(elt.innerText).toBe('');
