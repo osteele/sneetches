@@ -29,10 +29,10 @@ export const isRepoLink: (elt: HTMLAnchorElement) => boolean = (
   elt: HTMLAnchorElement,
 ) => isRepoUrl(elt.href) && elt.childElementCount === 0;
 
-const repoLinks = [
+const repoLinks = ([
   ...document.querySelectorAll('a[href^="https://github.com/"]'),
   ...document.querySelectorAll('a[href^="http://github.com/"]'),
-].filter(isRepoLink) as HTMLAnchorElement[];
+] as HTMLAnchorElement[]).filter(isRepoLink);
 
 // Remove sneetch annotations from the document.
 const removeLinkAnnotations = () =>

@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "./dist/",
     "sourceMap": true,
-    "noImplicitAny": true,
-    "noImplicitUseStrict": true,
-    "noImplicitReturns": true,
-    "strictNullChecks": true,
-    "module": "commonjs",
     "target": "es2017",
-    "jsx": "react"
+
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    // "noImplicitUseStrict": true,
+    // "noUnusedLocals": true,
+    "strict": true,
+    "strictNullChecks": true
   }
 }
