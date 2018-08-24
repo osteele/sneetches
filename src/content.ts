@@ -1,6 +1,6 @@
 import { getRepoData } from './github';
 import { ACCESS_TOKEN_KEY, getSettings, ShowSettings } from './settings';
-import { commify } from './utils';
+import { humanize } from './utils';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 
@@ -90,7 +90,7 @@ export function createAnnotation(
 ) {
   const text = [];
   if (show.forks) {
-    text.push(commify(data.forks_count) + Symbols.forks);
+    text.push(humanize(data.forks_count) + Symbols.forks);
   }
   if (show.update) {
     const when = new Date(data.pushed_at);
@@ -101,7 +101,7 @@ export function createAnnotation(
     text.push(Symbols.pushedAt + whenStr);
   }
   if (show.stars) {
-    text.push(commify(data.stargazers_count) + Symbols.stars);
+    text.push(humanize(data.stargazers_count) + Symbols.stars);
   }
   return _createAnnotation(' (' + text.join('; ') + ')');
 }
