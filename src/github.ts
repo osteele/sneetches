@@ -46,9 +46,18 @@ export function getRepoData(nwo: string): Promise<RepoResponse> {
   );
 }
 
+// Paths that start with one of these components aren't repo URLs.
+// For example, `https://github.com/about/careers` isn't a repo.
 const gitHubSpecialPages = new Set([
+  'about',
+  'blog',
+  'collections',
   'contact',
   'marketplace',
+  'new',
+  'login',
+  'logout',
+  'join',
   'notifications',
   'organizations',
   'pricing',

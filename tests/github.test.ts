@@ -15,6 +15,7 @@ describe('getRepoData', () => {
     const info = await getRepoData('owner/repo');
     expect(info).toEqual({ ok: true, json: data });
   });
+
   test('caches repo info', async () => {
     mockFetch({ json: repoInfo });
     await getRepoData('owner/repo');
@@ -22,6 +23,7 @@ describe('getRepoData', () => {
     const info = await getRepoData('owner/repo');
     expect(info).toEqual({ ok: true, json: repoInfo });
   });
+
   test('distinguishes repos', async () => {
     mockFetch({ json: repoInfo });
     const info1 = await getRepoData('owner/repo');
@@ -30,6 +32,7 @@ describe('getRepoData', () => {
     expect(info1).toEqual({ ok: true, json: repoInfo });
     expect(info2).toEqual({ ok: true, json: repoInfo2 });
   });
+
   test("rejects 403's", async () => {
     mockFetch({ ok: false, status: 403 });
     await expect(getRepoData('owner/repo')).rejects.toEqual({
@@ -37,11 +40,13 @@ describe('getRepoData', () => {
       status: 403,
     });
   });
+
   test("resolves 404's", async () => {
     mockFetch({ ok: false, status: 404 });
     const info = await getRepoData('owner/repo');
     expect(info).toEqual({ ok: false, status: 404 });
   });
+
   test("doesn't cache 403's", async () => {
     mockFetch({ ok: false, status: 403 });
     await expect(getRepoData('owner/repo')).rejects;
@@ -49,6 +54,7 @@ describe('getRepoData', () => {
     const info = await getRepoData('owner/repo');
     expect(info).toEqual({ ok: true, json: repoInfo });
   });
+
   test("caches 404's", async () => {
     mockFetch({ ok: false, status: 404 });
     await getRepoData('owner/repo');
@@ -67,9 +73,11 @@ describe('isRepoUrl', () => {
     expect(isRepoUrl('https://github.com/owner/name.git')).toBe(true);
     expect(isRepoUrl('https://github.com/owner/name.git/')).toBe(true);
   });
+
   test('rejects non-GitHub urls', () => {
     expect(isRepoUrl('https://example.com/owner/name')).toBe(false);
   });
+
   test("rejects URLs that aren't on the main site", () => {
     expect(isRepoUrl('https://diversity.github.com/')).toBe(false);
     expect(isRepoUrl('https://gist.github.com/')).toBe(false);
@@ -78,14 +86,22 @@ describe('isRepoUrl', () => {
     ).toBe(false);
     expect(isRepoUrl('https://developer.github.com/v4/guides/')).toBe(false);
   });
+
   test('rejects URLs without a name and repo', () => {
     expect(isRepoUrl('https://github.com/')).toBe(false);
     expect(isRepoUrl('https://github.com/owner')).toBe(false);
     expect(isRepoUrl('https://github.com/owner/')).toBe(false);
   });
+
   test('rejects GitHub special pages', () => {
+    expect(isRepoUrl('https://github.com/about/careers')).toBe(false);
+    expect(isRepoUrl('https://github.com/blog/517-unicorn/')).toBe(false);
+    expect(
+      isRepoUrl('https://github.com/collections/github-browser-extensions'),
+    ).toBe(false);
     expect(isRepoUrl('https://github.com/contact/report-abuse')).toBe(false);
     expect(isRepoUrl('https://github.com/marketplace/travis-ci')).toBe(false);
+    expect(isRepoUrl('https://github.com/new/import')).toBe(false);
     expect(isRepoUrl('https://github.com/notifications/participating')).toBe(
       false,
     );
