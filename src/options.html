@@ -3,29 +3,39 @@
   <head>
     <meta charset="utf-8">
     <style type="text/css">
-      body {
-        min-width: 300px;
-      }
+      body { min-width: 300px; margin: 0 }
+      section { margin: 15px }
+      h2 { font-size: inherit; margin: 5px 0 }
+      hr { opacity: 0.5 }
     </style>
   </head>
   <body>
     <form>
-        <span>Show:</span>
+      <section>
+        <h2>Annotations</h2>
+
         <input id="show-stars" type="checkbox">
-        <labe label="show-stars"l>Stars</labe>
+        <label label="show-stars">Stars</label>
+
         <input id="show-forks" type="checkbox">
         <label label="show-forks">Forks</label>
+
         <input id="show-update" type="checkbox">
         <label label="show-update">Last Push</label>
-        <br/>
+      </section>
 
-        <label for="access-token">GitHub access token</label>
+      <hr />
+
+      <section>
+        <label for="access-token"><h2>GitHub access token</h2></label>
         <input name="access-token" id="access-token" type="text">
-        <br/>
+        <p style="font-style: italic; font-size: small; margin-top: 5px">
+          Create a <a href="https://github.com/settings/tokens/new">GitHub
+          Personal Access Token</a> and paste it above.
+          <a href="https://github.com/osteele/sneetches#access-token">(Why?)</a>
+        </p>
+        </section>
       </form>
-      <p>Create a <a href="https://github.com/settings/tokens/new">GitHub Personal
-        Access Token</a> and paste it above. <a
-        href="https://github.com/osteele/sneetches#access-token">(Why?)</a></p>
       </body>
   <script src="options.js"></script>
 </html>
