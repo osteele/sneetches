@@ -1,4 +1,4 @@
-import { getRepoData } from '../src/github';
+import { getRepoData, isRepoUrl } from '../src/github';
 
 describe('getRepoData', () => {
   const repoInfo = { forks_count: 1, pushed_at: 2, stargazers_count: 3 };
@@ -55,6 +55,44 @@ describe('getRepoData', () => {
     await getRepoData('owner/repo');
     const info = await getRepoData('owner/repo');
     expect(info).toEqual({ ok: false, status: 404 });
+  });
+});
+
+describe('isRepoUrl', () => {
+  test('accepts GitHub repo urls', () => {
+    expect(isRepoUrl('http://github.com/owner/name')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name/')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name.git')).toBe(true);
+    expect(isRepoUrl('https://github.com/owner/name.git/')).toBe(true);
+  });
+  test('rejects non-GitHub urls', () => {
+    expect(isRepoUrl('https://example.com/owner/name')).toBe(false);
+  });
+  test("rejects URLs that aren't on the main site", () => {
+    expect(isRepoUrl('https://diversity.github.com/')).toBe(false);
+    expect(isRepoUrl('https://gist.github.com/')).toBe(false);
+    expect(
+      isRepoUrl(' https://help.github.com/articles/github-terms-of-service/'),
+    ).toBe(false);
+    expect(isRepoUrl('https://developer.github.com/v4/guides/')).toBe(false);
+  });
+  test('rejects URLs without a name and repo', () => {
+    expect(isRepoUrl('https://github.com/')).toBe(false);
+    expect(isRepoUrl('https://github.com/owner')).toBe(false);
+    expect(isRepoUrl('https://github.com/owner/')).toBe(false);
+  });
+  test('rejects GitHub special pages', () => {
+    expect(isRepoUrl('https://github.com/contact/report-abuse')).toBe(false);
+    expect(isRepoUrl('https://github.com/marketplace/travis-ci')).toBe(false);
+    expect(isRepoUrl('https://github.com/notifications/participating')).toBe(
+      false,
+    );
+    expect(isRepoUrl('https://github.com/organizations/new')).toBe(false);
+    expect(isRepoUrl('https://github.com/pricing/team')).toBe(false);
+    expect(isRepoUrl('https://github.com/settings/profile')).toBe(false);
+    expect(isRepoUrl('https://github.com/site/something')).toBe(false);
+    expect(isRepoUrl('https://github.com/topics/something')).toBe(false);
   });
 });
 

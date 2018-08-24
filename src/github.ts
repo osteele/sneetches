@@ -45,3 +45,19 @@ export function getRepoData(nwo: string): Promise<RepoResponse> {
     }),
   );
 }
+
+const gitHubSpecialPages = new Set([
+  'contact',
+  'marketplace',
+  'notifications',
+  'organizations',
+  'pricing',
+  'settings',
+  'site',
+  'topics',
+]);
+
+export function isRepoUrl(href: string): boolean {
+  const match = href && href.match('^https?://github.com/([^/]+)/[^/]+/?$');
+  return Boolean(match && !gitHubSpecialPages.has(match[1]));
+}

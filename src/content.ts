@@ -1,4 +1,4 @@
-import { getRepoData } from './github';
+import { getRepoData, isRepoUrl } from './github';
 import { ACCESS_TOKEN_KEY, getSettings, ShowSettings } from './settings';
 import { humanize } from './utils';
 
@@ -17,13 +17,6 @@ const Symbols = {
   pushedAt: '➲', // Alternatives: ⧗➟➠
   stars: '★',
 };
-
-export const isRepoUrl: (_: string) => boolean = (href: string) =>
-  Boolean(
-    href &&
-      href.match('^https?://github.com/[^/]+/[^/]+/?$') &&
-      !href.match('^https?://github.com/(site|topics)'),
-  );
 
 export const isRepoLink: (elt: HTMLAnchorElement) => boolean = (
   elt: HTMLAnchorElement,
