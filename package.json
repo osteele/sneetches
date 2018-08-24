@@ -19,8 +19,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint --fix",
-      "pre-push": "yarn test"
+      "pre-commit": "yarn lint --fix && yarn test --onlyChanged && yarn build --silent",
+      "pre-push": "yarn test --all"
     }
   },
   "devDependencies": {
