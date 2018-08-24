@@ -1,4 +1,5 @@
 import { getRepoData, isRepoUrl } from '../src/github';
+import { mockFetch } from './fetch.mock';
 
 describe('getRepoData', () => {
   const repoInfo = { forks_count: 1, pushed_at: 2, stargazers_count: 3 };
@@ -95,21 +96,3 @@ describe('isRepoUrl', () => {
     expect(isRepoUrl('https://github.com/topics/something')).toBe(false);
   });
 });
-
-declare var global: any;
-
-function mockFetch({
-  json = null,
-  ok = true,
-  status = 200,
-}: {
-  ok?: boolean;
-  json?: any;
-  status?: number;
-}) {
-  global.fetch = jest.fn(async () => ({
-    json: async () => json,
-    ok,
-    status,
-  }));
-}
