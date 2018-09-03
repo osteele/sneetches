@@ -7,7 +7,9 @@
   "main": "src/content.js",
   "scripts": {
     "build": "webpack --mode production",
+    "check": "tsc --noEmit",
     "dev": "webpack --mode development",
+    "format": "yarn lint --fix",
     "lint": "tslint src/**/*.ts test/**/*.ts",
     "package": "make build",
     "sampler": "python -m SimpleHTTPServer & opn http://localhost:8000/examples/sampler",
@@ -20,8 +22,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint --fix && yarn test --onlyChanged && yarn build --silent",
-      "pre-push": "yarn test --all"
+      "pre-commit": "yarn format && yarn check --silent && yarn test --onlyChanged",
+      "pre-push": "yarn lint && yarn check && yarn test"
     }
   },
   "devDependencies": {
