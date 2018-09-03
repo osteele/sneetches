@@ -2,6 +2,14 @@
   text-decoration: none;
 }
 
+.data-sneetch-extension::before {
+  content: ' (';
+}
+
+.data-sneetch-extension::after {
+  content: ')';
+}
+
 .data-sneetch-extension.missing {
   color: red;
 }

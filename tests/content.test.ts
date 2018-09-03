@@ -14,7 +14,7 @@ describe('createAnnotation', () => {
       update: false,
     });
     expect(elt.outerHTML).toMatch('class="data-sneetch-extension"');
-    expect(elt.innerText).toBe(' (10★)');
+    expect(elt.innerText).toBe('10★');
   });
 });
 
@@ -26,7 +26,7 @@ describe('createErrorAnnotation', () => {
     expect(elt.outerHTML).toMatch(
       'title="Please set up your Github Personal Access Token"',
     );
-    expect(elt.innerText).toBe(' (⏳)');
+    expect(elt.innerText).toBe('⏳');
   });
   test.skip('with an access token', () => {
     const elt = createErrorAnnotation({ status: 403, headers }, 'access token');
@@ -37,7 +37,7 @@ describe('createErrorAnnotation', () => {
   test('for a missing repo', () => {
     const elt = createErrorAnnotation({ status: 404, headers }, '');
     expect(elt.outerHTML).toMatch(/class="[^"]* missing"/);
-    expect(elt.innerText).toBe(' (missingⓍ)');
+    expect(elt.innerText).toBe('missingⓍ');
   });
   test('with a unknown error', () => {
     const elt = createErrorAnnotation(

@@ -61,16 +61,16 @@ export function createErrorAnnotation(
   reportError: (_: string, ..._2: any[]) => void = console.error,
 ) {
   if (res.status === 403) {
-    const an = _createAnnotation(' (⏳)');
+    const elt = _createAnnotation('⏳');
     const when = new Date(Number(res.headers!.get('X-RateLimit-Reset')) * 1000);
     const title = accessToken
       ? 'The GitHub API rate limit has been exceeded.' +
         `No API calls are available until ${when}.`
       : 'Please set up your Github Personal Access Token';
-    an.setAttribute('title', title);
-    return an;
+    elt.setAttribute('title', title);
+    return elt;
   } else if (res.status === 404) {
-    return _createAnnotation(' (' + Symbols.missing + ')', 'missing');
+    return _createAnnotation(Symbols.missing, 'missing');
   } else {
     reportError('sneetches: request status =', res.status);
     return _createAnnotation('');
@@ -87,7 +87,7 @@ export function createAnnotation(
     show.update && (() => Symbols.pushedAt + humanizeDate(pushedAt))(),
     show.stars && humanize(data.stargazers_count) + Symbols.stars,
   ].filter(Boolean);
-  const elt = _createAnnotation(' (' + text.join('; ') + ')');
+  const elt = _createAnnotation(text.join('; '));
   elt.title =
     [
       `${commafy(data.stargazers_count)} stars`,
