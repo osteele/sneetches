@@ -1,18 +1,29 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "target": "es2017",
+    /* Basic Options */
+    "target": "es2017" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
+    "module": "commonjs" /* Specify module code generation:  'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
+    "declaration": true /* Generates corresponding '.d.ts' file. */,
+    "outDir": "./dist/" /* Redirect output structure to the directory. */,
+    "removeComments": true /* Do not emit comments to output. */,
 
-    "declaration": true,
+    /* Strict Type-Checking Options */
+    "strict": true /* Enable all strict type-checking options. */,
+    "alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
+    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
+    "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
+    "strictNullChecks": true /* Enable strict null checks. */,
+
+    /* Additional Checks */
+    "noUnusedLocals": false /* Report errors on unused locals. */,
+    "noUnusedParameters": false /* Report errors on unused parameters. */,
+    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
+    "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
+
+    /* Module Resolution Options */
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    // "noImplicitUseStrict": true,
-    // "noUnusedLocals": true,
-    "strict": true,
-    "strictNullChecks": true
+
+    /* Source Map Options */
+    "sourceMap": true /* Generates corresponding '.map' file. */
   }
 }
