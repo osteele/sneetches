@@ -63,6 +63,7 @@ const gitHubSpecialPages = new Set([
   'pricing',
   'settings',
   'site',
+  'trending',
   'topics',
 ]);
 
