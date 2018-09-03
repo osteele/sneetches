@@ -1,6 +1,6 @@
 import { getRepoData, isRepoUrl } from './github';
 import { ACCESS_TOKEN_KEY, getSettings, ShowSettings } from './settings';
-import { humanize } from './utils';
+import { commafy, humanize, humanizeDate } from './utils';
 
 const ANNOTATION_CLASS = 'data-sneetch-extension';
 
@@ -81,24 +81,23 @@ export function createAnnotation(
   data: { forks_count: number; stargazers_count: number; pushed_at: string },
   show: ShowSettings,
 ) {
-  const text = [];
-  if (show.forks) {
-    text.push(humanize(data.forks_count) + Symbols.forks);
-  }
-  if (show.update) {
-    const when = new Date(data.pushed_at);
-    let whenStr = when.toLocaleDateString();
-    if (when.getFullYear() === new Date().getFullYear()) {
-      whenStr = whenStr.replace(RegExp('/' + when.getFullYear() + '$'), '');
-    }
-    text.push(Symbols.pushedAt + whenStr);
-  }
-  if (show.stars) {
-    text.push(humanize(data.stargazers_count) + Symbols.stars);
-  }
-  return _createAnnotation(' (' + text.join('; ') + ')');
+  const pushedAt = new Date(data.pushed_at);
+  const text = [
+    show.forks && humanize(data.forks_count) + Symbols.forks,
+    show.update && (() => Symbols.pushedAt + humanizeDate(pushedAt))(),
+    show.stars && humanize(data.stargazers_count) + Symbols.stars,
+  ].filter(Boolean);
+  const elt = _createAnnotation(' (' + text.join('; ') + ')');
+  elt.title =
+    [
+      `${commafy(data.stargazers_count)} stars`,
+      `${commafy(data.forks_count)} forks`,
+      `pushed ${pushedAt.toLocaleDateString()}`,
+    ].join('; ') + ' — Sneetches';
+  return elt;
 }
 
+// Common code to create presentation error and success annotations.
 function _createAnnotation(str: string, extraCssClasses: string | null = null) {
   let cssClass = ANNOTATION_CLASS;
   if (extraCssClasses) {

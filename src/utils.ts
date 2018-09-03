@@ -17,3 +17,11 @@ export function humanize(n: number): string {
   }
   return commafy(n);
 }
+
+export function humanizeDate(when: Date): string {
+  let whenStr = when.toLocaleDateString();
+  if (when.getFullYear() === new Date().getFullYear()) {
+    whenStr = whenStr.replace(RegExp('/' + when.getFullYear() + '$'), '');
+  }
+  return whenStr;
+}
