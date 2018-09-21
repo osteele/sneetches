@@ -37,10 +37,15 @@ function marshallableResponse(res: Response): PromiseLike<RepoResponse> {
 export function getRepoData(nwo: string): Promise<RepoResponse> {
   return locallyCached(nwo, CACHE_VERSION, () =>
     getAccessToken().then((accessToken) => {
-      const headers = accessToken
-        ? new Headers({ Authorization: 'Bearer ' + accessToken })
-        : null;
-      const options = headers ? { headers } : {};
+      const headers: Record<string, string> = {
+        'User-Agent': 'osteele/sneetches',
+      };
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+      }
+      const options = {
+        headers: headers as Record<string, string>,
+      } as RequestInit;
       return fetch(GITHUB_API_URL + nwo, options).then(marshallableResponse);
     }),
   );
