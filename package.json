@@ -5,13 +5,16 @@
   "author": "Oliver Steele <steele@osteele.com>",
   "license": "MIT",
   "main": "src/content.js",
+  "private": true,
   "scripts": {
     "build": "webpack --mode production",
+    "build:chrome": "make chrome",
+    "build:firefox": "yarn build && web-ext build -s build -a dist -o && make source-zip",
+    "build:watch": "yarn build --watch",
     "check": "tsc --noEmit",
     "dev": "webpack --mode development",
     "format": "yarn lint --fix",
     "lint": "tslint src/**/*.ts test/**/*.ts",
-    "package": "make build",
     "sampler": "python -m SimpleHTTPServer & opn http://localhost:8000/examples/sampler",
     "test": "jest",
     "watch": "webpack --mode development --watch"
@@ -39,6 +42,7 @@
     "ts-loader": "^4.4.2",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2",
+    "web-ext": "^2.9.1",
     "webpack": "^4.16.1",
     "webpack-cli": "^3.0.8"
   }

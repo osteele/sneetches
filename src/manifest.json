@@ -10,6 +10,11 @@
   "icons": {
     "128": "images/icon128.png"
   },
+  "applications": {
+    "gecko": {
+      "id": "sneetches@osteele.com"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["*://*/*"],
@@ -17,12 +22,13 @@
       "css": ["style.css"]
     }
   ],
-  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html"
+  },
   "browser_action": {
     "default_icon": {
       "128": "images/icon32.png"
     },
     "default_popup": "options.html"
-  },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  }
 }

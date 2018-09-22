@@ -1,14 +1,29 @@
-TARGET := dist/sneetches.zip
+CHROME_TARGET := dist/sneetches-chrome.zip
+CHROME_SRC := build/chrome
+SOURCE_ZIP := dist/sources.zip
 
-.PHONY: build publish
+.PHONY: clean build-chrome publish-chrome source-zip
 
-publish: build
+clean:
+	rm -rf build dist
+
+publish-chrome: build-chrome
 	@open https://chrome.google.com/webstore/developer/dashboard
 
-build: $(TARGET)
+build-chrome: $(CHROME_TARGET)
+source-zip: $(SOURCE_ZIP)
 
-$(TARGET): src/*.css src/*.html src/*.ts src/*.json src/images/*.png
-	@rm -rf dist
+$(CHROME_SRC): $(wildcard src/**/*)
+	@rm -rf $@
+	@mkdir -p $@
+	webpack --mode production --output-path $@
+	@# TODO: move the following into the webpack config
+	jq 'del(.applications)' < src/manifest.json > $@/manifest.json
+
+$(CHROME_TARGET): $(CHROME_SRC)
 	@mkdir -p dist
-	yarn build
+	(cd build && zip -o ../$@ -r chrome)
+
+$(SOURCE_ZIP): $(shell git ls-files)
+	@mkdir -p dist
 	zip $@ $^
